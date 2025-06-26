@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;        /* ✅ White background */
+  --foreground: #ffffff;        /* ✅ Black text */
+  --accent-urgent: #d00000;     /* 🔴 Red for symptoms */
+  --accent-tier: #5b21b6;       /* 🟣 Deep purple for tier headers */
+  --highlight-yellow: #facc15;  /* 🟡 Attention grabbing text */
+  --success-green: #16a34a;     /* ✅ Calm success like Zoom invite */
+}
+
+/* ❌ REMOVE or COMMENT this block below */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #ffffff;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
