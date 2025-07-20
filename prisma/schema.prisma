@@ -1,0 +1,157 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Agent {
+  id        String   @id @default(cuid())
+  refCode   String   @unique // e.g., "malik", "john", etc.
+  name      String
+  email     String?
+  phone     String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  leads Lead[]
+
+  @@map("agents")
+}
+
+model Lead {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Agent/Referral tracking
+  agentId   String?
+  agent     Agent?   @relation(fields: [agentId], references: [id])
+  refCode   String?  // Store the original ref code from URL
+
+  // Basic Information
+  agentName String
+  relation  String // "Myself" or "Loved one"
+  isMinor   String // "Yes" or "No"
+
+  // Injured Party Information
+  firstName   String
+  middleName  String?
+  lastName    String
+  suffix      String?
+  gender      String
+  email       String
+  address1    String
+  address2    String?
+  city        String
+  state       String
+  zip         String
+  phone       String
+  secondaryPhone String?
+  dob         String // MM/DD/YYYY format
+  ssn         String
+
+  // Legal Information
+  signedWithAttorney String // "Yes" or "No"
+  legalFullName      String?
+
+  // Education
+  inSchool   String // "Yes" or "No"
+  education  String
+
+  // Gaming Information
+  startDate  String // MM/DD/YYYY format
+  avgHours   String
+  platforms  String[] // Array of selected platforms
+  games      String[] // Array of selected games
+  firstGame  String
+  gameHistory String
+  subscriptions String[] // Array of selected subscriptions
+  cloudSub   String // "Yes", "No", "Unsure"
+  vrAccessories String // "Yes" or "No"
+  receipts   String // "Yes" or "No"
+  monthlySpend String
+
+  // Proof and Behavior
+  proof      String[] // Array of proof types
+  triedToStop String // "Yes" or "No"
+  watchedInfluencers String // "Yes" or "No"
+  paidForItems String // "Yes", "No", "Unsure"
+  soldContent String // "Yes" or "No"
+  energyDrink String // "Yes", "No", "Do not know"
+
+  // Medical Information
+  symptoms   String[] // Array of symptoms
+  injuries   String[] // Array of injuries
+  lifeEffects String[] // Array of life effects
+  treatments String[] // Array of treatments
+  diagnosedByProvider String // "Yes" or "No"
+  medication String
+  otherConditions String?
+
+  // Legal History
+  filedLawsuit String // "Yes" or "No"
+  convicted   String // "Yes" or "No"
+  ssdi        String // "Yes" or "No"
+  ssi         String // "Yes" or "No"
+
+  // Files and Additional Info
+  driversLicenseUrl String? // URL to stored file
+  emergencyName     String?
+  emergencyPhone    String?
+  emergencyRelation String?
+  notes             String?
+
+  // Consent
+  consent           Boolean @default(false)
+
+  // Status tracking
+  status            LeadStatus @default(PENDING)
+  formstackSubmitted Boolean @default(false)
+  formstackSubmissionId String?
+
+  // Relations
+  submissionLogs SubmissionLog[]
+
+  @@map("leads")
+}
+
+model SubmissionLog {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  // Lead reference
+  leadId    String
+  lead      Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  // Submission details
+  target    String   // "formstack", "internal", etc.
+  status    SubmissionStatus
+  response  String?  // Response from external service
+  error     String?  // Error message if failed
+  attempt   Int      @default(1)
+
+  @@map("submission_logs")
+}
+
+enum LeadStatus {
+  PENDING
+  SUBMITTED
+  PROCESSED
+  REJECTED
+  COMPLETED
+}
+
+enum SubmissionStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  RETRY
+}
