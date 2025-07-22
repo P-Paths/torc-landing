@@ -1,6 +1,6 @@
 'use client';
 // src/app/page.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import HeroSection from '../../components/HeroSections';
 import QualificationsSection from '../../components/QualificationsSection';
 import TreatmentOptionsSection from '../../components/TreatmentOptionsSection';
@@ -16,6 +16,16 @@ import OptInMock from '../../components/OptInMock';
 export default function Home() {
   const [showDemoForm, setShowDemoForm] = useState(false);
 
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const agent = params.get('agent');
+      if (agent && !localStorage.getItem('agentName')) {
+        localStorage.setItem('agentName', agent);
+      }
+    }
+  }, []);
+
   return (
     <main className="bg-white text-black min-h-screen px-6 py-10 font-sans">
       <HeroSection />
@@ -30,7 +40,13 @@ export default function Home() {
       <div className="text-center my-8">
         <button
           className="inline-block bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition"
-          onClick={() => setShowDemoForm((v) => !v)}
+          onClick={() => {
+            if (typeof window !== 'undefined') {
+              const agent = localStorage.getItem('agentName') || 'unknown';
+              const formUrl = `https://copilot.formstack.com/start-workflow/50291bbb-7b61-4357-b767-178fba36d7ef?field151456318=${encodeURIComponent(agent)}`;
+              window.location.href = formUrl;
+            }
+          }}
         >
           {showDemoForm ? 'Hide Intake Form' : '📝 See if you Qualify'}
         </button>
