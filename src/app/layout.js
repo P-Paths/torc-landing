@@ -14,7 +14,7 @@ const robotoMono = Roboto_Mono({
 });
 
 export const metadata = {
-  title: 'All Tort Solutions - Video Game Addiction Case',
+  title: 'Real Time Solutions - Video Game Addiction Case',
   description: 'Nationwide claims for gaming-related harm in youth.',
 };
 

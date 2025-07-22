@@ -122,10 +122,15 @@ const initialFormData: FormData = {
   consent: false,
 };
 
+const PRIORITY_1_URL = 'https://copilot.formstack.com/start-workflow/50291bbb-7b61-4357-b767-178fba36d7ef';
+const PRIORITY_2_URL = 'https://copilot.formstack.com/start-workflow/484828b7-d528-4147-8ffa-975f629d0cd8';
+const REDIRECT_URL = 'https://atslawsuits.com/lawsuits/vga/';
+
 const OptInForm: React.FC = () => {
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [submitted, setSubmitted] = useState(false);
+  const [priority, setPriority] = useState(() => (Math.random() < 0.6 ? '1' : '2'));
 
   // Helper for handling input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -232,33 +237,10 @@ const OptInForm: React.FC = () => {
         // Store form data in localStorage for potential use
         localStorage.setItem('torcFormData', JSON.stringify(formData));
         
-        // Submit to our database API
-        try {
-          const response = await fetch('/api/submit-form', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(formData),
-          });
-          
-          if (response.ok) {
-            console.log('Form data saved to database successfully');
-          } else {
-            console.warn('Failed to save to database, but continuing with Google Form');
-          }
-        } catch (dbError) {
-          console.warn('Database submission failed, but continuing with Google Form:', dbError);
-        }
-        
-        // Redirect to the actual Google Form
-        window.open('https://forms.gle/z3Wx5LVQQox5xXVw7', '_blank');
-        
-        // Show success message
+        // Optionally send to API here
         setTimeout(() => {
-          setSubmitted(false);
-          alert('Form validated successfully! Redirecting to the official intake form...');
-        }, 1000);
+          window.location.href = REDIRECT_URL;
+        }, 1200);
         
       } catch (error) {
         console.error('Error processing form:', error);
@@ -289,7 +271,7 @@ const OptInForm: React.FC = () => {
 
   // Function to redirect to Google Form with pre-filled data
   const redirectToGoogleForm = (data: any) => {
-    const baseUrl = 'https://forms.gle/z3Wx5LVQQox5xXVw7';
+    const baseUrl = 'https://copilot.formstack.com/start-workflow/50291bbb-7b61-4357-b767-178fba36d7ef';
     const params = new URLSearchParams();
     
     // Add pre-filled data as URL parameters
@@ -303,20 +285,24 @@ const OptInForm: React.FC = () => {
     window.open(fullUrl, '_blank');
   };
 
+  const handlePriorityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPriority(e.target.value);
+  };
+
   if (submitted) {
     return (
       <section className="bg-green-100 rounded-lg shadow-md p-6 mb-8 max-w-2xl mx-auto text-center">
-        <h2 className="text-2xl font-bold mb-4 text-green-800">Form Validated Successfully! ✅</h2>
-        <p className="text-green-700 mb-4">Your information has been validated and you're being redirected to the official intake form.</p>
+        <h2 className="text-2xl font-bold mb-4 text-green-800">Thanks for submitting! Step 1 is done.</h2>
+        <p className="text-green-700 mb-4">Please watch for your legal intake link shortly. We also host Zoom help sessions every Sat/Sun 12–2PM EST.</p>
         <div className="bg-white p-4 rounded-lg border border-green-200">
-          <p className="text-sm text-gray-600 mb-2">If the form doesn't open automatically, please click the link below:</p>
-          <a 
-            href="https://forms.gle/z3Wx5LVQQox5xXVw7" 
-            target="_blank" 
+          <div className="font-semibold mb-2">Step 2: Legal Intake Form</div>
+          <a
+            href={priority === '1' ? PRIORITY_1_URL : PRIORITY_2_URL}
+            target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-600 hover:text-blue-800 underline font-semibold"
+            className="text-blue-600 underline"
           >
-            Open Official Intake Form →
+            {priority === '1' ? 'Priority 1 Legal Intake (60%)' : 'Priority 2 Legal Intake (40%)'}
           </a>
         </div>
         <p className="text-xs text-gray-500 mt-4">
@@ -331,8 +317,21 @@ const OptInForm: React.FC = () => {
       <div className="mb-6 text-center">
         <div className="h-16 mb-2 bg-gray-300 rounded" style={{ width: '120px', margin: '0 auto' }}></div>
       </div>
-      <h2 className="text-2xl font-bold mb-4 text-center">Video Game Addiction Agent Intake</h2>
+      <h2 className="text-2xl font-bold mb-4 text-center">Agent Intake</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Priority Toggle */}
+        <div>
+          <label className="block font-semibold mb-1">Legal Intake Link Priority</label>
+          <div className="flex gap-4">
+            <label>
+              <input type="radio" name="priority" value="1" checked={priority === '1'} onChange={handlePriorityChange} /> Priority 1 (60%)
+            </label>
+            <label>
+              <input type="radio" name="priority" value="2" checked={priority === '2'} onChange={handlePriorityChange} /> Priority 2 (40%)
+            </label>
+          </div>
+          <div className="text-xs text-gray-500">(Default is randomized: 60% Priority 1, 40% Priority 2)</div>
+        </div>
         {/* Agent Name */}
         <div>
           <label className="block font-semibold">Agent Name<span className="text-red-500">*</span></label>

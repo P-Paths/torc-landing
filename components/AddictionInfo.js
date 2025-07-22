@@ -72,7 +72,7 @@ export default function AddictionInfo() {
             {/* CTA BUTTON – Bottom Right Corner */}
             <div className="absolute bottom-0 right-0">
               <a
-                href="https://forms.gle/z3Wx5LVQQox5xXVw7"
+                href="https://copilot.formstack.com/start-workflow/50291bbb-7b61-4357-b767-178fba36d7ef"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-md shadow-md"

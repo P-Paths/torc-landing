@@ -37,16 +37,8 @@ export default function HeroSection() {
 
         {/* 🧠 Right Side - Text */}
         <div className="text-center md:text-left">
-          {/* 👔 Logo */}
-          <div className="mb-4 flex justify-center md:justify-start">
-            <Image
-              src="/images/ats-logo.jpg"
-              alt="All Tort Solutions Logo"
-              width={280}
-              height={80}
-              priority
-            />
-          </div>
+          {/* �� Logo */}
+          {/* Remove the ATS/All Tort Solutions logo and text from here */}
 
           {/* 🧠 Static Headline */}
           <h2 className="text-3xl md:text-4xl font-bold text-indigo-800 mb-4">
@@ -78,7 +70,7 @@ export default function HeroSection() {
 
           {/* 🔗 CTA Button */}
           <a
-            href="https://forms.gle/z3Wx5LVQQox5xXVw7"
+            href="https://copilot.formstack.com/start-workflow/50291bbb-7b61-4357-b767-178fba36d7ef"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-block bg-blue-600 text-white font-semibold py-3 px-6 rounded-full hover:bg-blue-700 transition"

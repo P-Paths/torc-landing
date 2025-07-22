@@ -46,13 +46,13 @@ export default function AttorneyIntro() {
 
           <div className="flex flex-col sm:flex-row gap-4">
             <a
-              href="https://calendly.com/preston-prestigiouspaths/video-game-addiction-info-intake-session"
+              href="https://docs.google.com/forms/d/e/1FAIpQLSeZl_it-fgAHZ3lMrRQde9vYpIGAepmECQJbNgcrcRQLwPM6Q/viewform"
               className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded text-center w-full sm:w-auto"
             >
               📅 Book 1-on-1 Call
             </a>
             <a
-              href="https://forms.gle/z3Wx5LVQQox5xXVw7"
+              href="https://copilot.formstack.com/start-workflow/50291bbb-7b61-4357-b767-178fba36d7ef"
               className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded text-center w-full sm:w-auto"
             >
               📝 Submit Intake Form

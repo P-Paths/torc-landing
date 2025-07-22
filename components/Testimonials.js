@@ -25,13 +25,13 @@ export default function Testimonials() {
             🌐 View Source
           </a>
           <a
-            href="https://calendly.com/preston-prestigiouspaths/video-game-addiction-info-intake-session"
+            href="https://docs.google.com/forms/d/e/1FAIpQLSeZl_it-fgAHZ3lMrRQde9vYpIGAepmECQJbNgcrcRQLwPM6Q/viewform"
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded w-full sm:w-auto text-center"
           >
             📅 Book 1-on-1
           </a>
           <a
-            href="https://forms.gle/z3Wx5LVQQox5xXVw7"
+            href="https://copilot.formstack.com/start-workflow/50291bbb-7b61-4357-b767-178fba36d7ef"
             className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded w-full sm:w-auto text-center"
           >
             📝 See if you Qualify
@@ -57,13 +57,13 @@ export default function Testimonials() {
             🌐 View Source
           </a>
           <a
-            href="https://calendly.com/preston-prestigiouspaths/video-game-addiction-info-intake-session"
+            href="https://docs.google.com/forms/d/e/1FAIpQLSeZl_it-fgAHZ3lMrRQde9vYpIGAepmECQJbNgcrcRQLwPM6Q/viewform"
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded w-full sm:w-auto text-center"
           >
             📅 Book 1-on-1
           </a>
           <a
-            href="https://forms.gle/z3Wx5LVQQox5xXVw7"
+            href="https://copilot.formstack.com/start-workflow/50291bbb-7b61-4357-b767-178fba36d7ef"
             className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded w-full sm:w-auto text-center"
           >
             📝 See if you Qualify
@@ -89,13 +89,13 @@ export default function Testimonials() {
             🌐 View Source
           </a>
           <a
-            href="https://calendly.com/preston-prestigiouspaths/video-game-addiction-info-intake-session"
+            href="https://docs.google.com/forms/d/e/1FAIpQLSeZl_it-fgAHZ3lMrRQde9vYpIGAepmECQJbNgcrcRQLwPM6Q/viewform"
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded w-full sm:w-auto text-center"
           >
             📅 Book 1-on-1
           </a>
           <a
-            href="https://forms.gle/z3Wx5LVQQox5xXVw7"
+            href="https://copilot.formstack.com/start-workflow/50291bbb-7b61-4357-b767-178fba36d7ef"
             className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded w-full sm:w-auto text-center"
           >
             📝 See if you Qualify

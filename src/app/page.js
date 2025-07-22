@@ -1,4 +1,6 @@
+'use client';
 // src/app/page.js
+import React, { useState } from 'react';
 import HeroSection from '../../components/HeroSections';
 import QualificationsSection from '../../components/QualificationsSection';
 import TreatmentOptionsSection from '../../components/TreatmentOptionsSection';
@@ -9,23 +11,32 @@ import Testimonials from '../../components/Testimonials';
 import StepGuide from '../../components/StepGuide';
 import Footer from '../../components/Footer';
 import CompaniesInLawsuit from '../../components/CompaniesInLawsuit';
-import AttorneyIntro from '../../components/AttorneyIntro';
-import OptInForm from '../../components/OptInForm';
+import OptInMock from '../../components/OptInMock';
 
 export default function Home() {
+  const [showDemoForm, setShowDemoForm] = useState(false);
+
   return (
     <main className="bg-white text-black min-h-screen px-6 py-10 font-sans">
-      <OptInForm />
       <HeroSection />
+      {/* Moved the button further down, below testimonials */}
+      {showDemoForm && <OptInMock />}
       <QualificationsSection />
-      <StepGuide /> {/* Signs of addiction + optional ZIP lookup */}
-      <ZoomInviteSection /> {/* Need help with Zoom/form */}
-      <GamerTagHelp /> {/* Need help finding Gamer Tag */}
-      <CompaniesInLawsuit /> {/* Companies in the lawsuit */}
+      <StepGuide />
+      <ZoomInviteSection />
+      <GamerTagHelp />
+      <CompaniesInLawsuit />
       <Testimonials />
-      <AttorneyIntro /> {/* Attorney intro section */}
-      <TreatmentOptionsSection /> {/* Treatment resources */}
-      <AddictionInfo /> {/* SYMPTOMS */}
+      <div className="text-center my-8">
+        <button
+          className="inline-block bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition"
+          onClick={() => setShowDemoForm((v) => !v)}
+        >
+          {showDemoForm ? 'Hide Intake Form' : '📝 See if you Qualify'}
+        </button>
+      </div>
+      <TreatmentOptionsSection />
+      <AddictionInfo />
       <Footer />
     </main>
   );

@@ -28,7 +28,7 @@ export default function QualificationsSection() {
         {/* Intake Form CTA */}
         <div className="mt-10">
           <a
-            href="https://forms.gle/z3Wx5LVQQox5xXVw7"
+            href="https://copilot.formstack.com/start-workflow/50291bbb-7b61-4357-b767-178fba36d7ef"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-block bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition"

@@ -70,7 +70,7 @@ export default function StepGuide() {
             YOU COULD BE ENTITLED TO COMPENSATION! Has your child experienced any of these symptoms?
           </p>
           <a
-            href="https://forms.gle/z3Wx5LVQQox5xXVw7"
+            href="https://copilot.formstack.com/start-workflow/50291bbb-7b61-4357-b767-178fba36d7ef"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-block bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded transition"
