@@ -1,4 +1,17 @@
+'use client';
+import React from 'react';
+import { useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
+
 export default function AddictionInfo() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const agentId = searchParams.get('agent') || 'AHRPE5559';
+
+  const handleQualifyClick = () => {
+    router.push(`/enhanced-intake?agent=${agentId}`);
+  };
+
   return (
     <section className="bg-white text-black px-6 py-10">
       <div className="max-w-6xl mx-auto">
@@ -71,14 +84,12 @@ export default function AddictionInfo() {
 
             {/* CTA BUTTON – Bottom Right Corner */}
             <div className="absolute bottom-0 right-0">
-              <a
-                href="https://copilot.formstack.com/start-workflow/50291bbb-7b61-4357-b767-178fba36d7ef"
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                onClick={handleQualifyClick}
                 className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-md shadow-md"
               >
                 📝 See if you Qualify
-              </a>
+              </button>
             </div>
           </div>
         </div>

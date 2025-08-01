@@ -1,10 +1,20 @@
 // components/ZoomInviteSection.js
+'use client';
 import React, { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 export default function ZoomInviteSection() {
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({ name: '', phone: '', email: '', day: '' });
   const [error, setError] = useState('');
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const agentId = searchParams.get('agent') || 'AHRPE5559';
+
+  const handleQualifyClick = () => {
+    router.push(`/enhanced-intake?agent=${agentId}`);
+  };
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -48,14 +58,12 @@ export default function ZoomInviteSection() {
           🎥 Join Zoom Q&A
         </button>
         {/* See if you Qualify (Formstack Priority 1) */}
-        <a
-          href="https://copilot.formstack.com/start-workflow/50291bbb-7b61-4357-b767-178fba36d7ef"
-          target="_blank"
-          rel="noopener noreferrer"
+        <button
+          onClick={handleQualifyClick}
           className="inline-block bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-3 rounded-full shadow transition"
         >
          📝 See if you Qualify
-        </a>
+        </button>
       </div>
       {/* Modal */}
       {showModal && (

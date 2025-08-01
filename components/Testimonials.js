@@ -1,6 +1,17 @@
+'use client';
 import React from 'react';
+import { useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 export default function Testimonials() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const agentId = searchParams.get('agent') || 'AHRPE5559';
+
+  const handleQualifyClick = () => {
+    router.push(`/enhanced-intake?agent=${agentId}`);
+  };
+
   return (
     <section className="bg-white text-black py-12 px-6 rounded-lg max-w-5xl mx-auto">
       <h2 className="text-3xl font-bold text-center mb-10">
@@ -30,12 +41,12 @@ export default function Testimonials() {
           >
             📅 Book 1-on-1
           </a>
-          <a
-            href="https://copilot.formstack.com/start-workflow/50291bbb-7b61-4357-b767-178fba36d7ef"
+          <button
+            onClick={handleQualifyClick}
             className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded w-full sm:w-auto text-center"
           >
             📝 See if you Qualify
-          </a>
+          </button>
         </div>
       </div>
 
@@ -62,12 +73,12 @@ export default function Testimonials() {
           >
             📅 Book 1-on-1
           </a>
-          <a
-            href="https://copilot.formstack.com/start-workflow/50291bbb-7b61-4357-b767-178fba36d7ef"
+          <button
+            onClick={handleQualifyClick}
             className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded w-full sm:w-auto text-center"
           >
             📝 See if you Qualify
-          </a>
+          </button>
         </div>
       </div>
 
@@ -94,12 +105,12 @@ export default function Testimonials() {
           >
             📅 Book 1-on-1
           </a>
-          <a
-            href="https://copilot.formstack.com/start-workflow/50291bbb-7b61-4357-b767-178fba36d7ef"
+          <button
+            onClick={handleQualifyClick}
             className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded w-full sm:w-auto text-center"
           >
             📝 See if you Qualify
-          </a>
+          </button>
         </div>
       </div>
 

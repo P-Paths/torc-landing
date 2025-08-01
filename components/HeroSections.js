@@ -1,7 +1,9 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 const rotatingHooks = [
   'Warning Signs You Can’t Ignore 👀',
@@ -9,8 +11,15 @@ const rotatingHooks = [
   'Parents Nationwide Are Filing Claims 📄',
 ];
 
-export default function HeroSection() {
+function HeroSectionContent() {
   const [index, setIndex] = useState(0);
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const agentId = searchParams.get('agent') || 'AHRPE5559';
+
+  const handleQualifyClick = () => {
+    router.push(`/enhanced-intake?agent=${agentId}`);
+  };
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -69,17 +78,23 @@ export default function HeroSection() {
           </em>
 
           {/* 🔗 CTA Button */}
-          <a
-            href="https://copilot.formstack.com/start-workflow/50291bbb-7b61-4357-b767-178fba36d7ef"
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            onClick={handleQualifyClick}
             className="inline-block bg-blue-600 text-white font-semibold py-3 px-6 rounded-full hover:bg-blue-700 transition"
           >
             See if You Qualify →
-          </a>
+          </button>
         </div>
       </div>
     </section>
+  );
+}
+
+export default function HeroSection() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <HeroSectionContent />
+    </Suspense>
   );
 }
 

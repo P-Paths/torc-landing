@@ -1,5 +1,8 @@
+'use client';
 import React from 'react';
 import { CheckCircle } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 const qualifications = [
   "Plays 3–4+ hours per day",
@@ -9,6 +12,14 @@ const qualifications = [
 ];
 
 export default function QualificationsSection() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const agentId = searchParams.get('agent') || 'AHRPE5559';
+
+  const handleQualifyClick = () => {
+    router.push(`/enhanced-intake?agent=${agentId}`);
+  };
+
   return (
     <section className="bg-white py-12 px-4 sm:px-8 lg:px-24">
       <div className="max-w-5xl mx-auto text-center">
@@ -27,14 +38,12 @@ export default function QualificationsSection() {
 
         {/* Intake Form CTA */}
         <div className="mt-10">
-          <a
-            href="https://copilot.formstack.com/start-workflow/50291bbb-7b61-4357-b767-178fba36d7ef"
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            onClick={handleQualifyClick}
             className="inline-block bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition"
           >
             📝 See if you Qualify
-          </a>
+          </button>
         </div>
       </div>
     </section>
