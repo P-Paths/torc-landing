@@ -270,6 +270,7 @@ export default function AdminDashboard() {
               { id: 'overview', label: 'Overview' },
               { id: 'agents', label: 'Agent Management' },
               { id: 'leads', label: 'Lead Management' },
+              { id: 'agent-interface', label: 'Agent Interface' },
               { id: 'analytics', label: 'Analytics' },
               { id: 'reports', label: 'Reports' },
               { id: 'system', label: 'System' }
@@ -669,6 +670,148 @@ export default function AdminDashboard() {
                 </div>
               </div>
                          )}
+
+             {/* Agent Interface Tab */}
+             {activeTab === 'agent-interface' && (
+               <div className="space-y-6">
+                 <div className="bg-white rounded-lg shadow p-6">
+                   <h3 className="text-lg font-medium text-gray-900 mb-4">Agent Intake Form Preview</h3>
+                   <p className="text-gray-600 mb-6">
+                     This is exactly what your agents will see when they use the intake form. 
+                     You can test the form functionality here to stay familiar with the process.
+                   </p>
+                   
+                   <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                     <div className="text-center mb-6">
+                       <h4 className="text-2xl font-bold text-gray-800 mb-2">
+                         Gaming Addiction Assessment
+                       </h4>
+                       <p className="text-lg text-gray-600 mb-2">
+                         Complete this assessment to see if you qualify for gaming addiction treatment
+                       </p>
+                       <p className="text-sm text-gray-500">
+                         Agent ID: AHRPE5559 (Demo)
+                       </p>
+                     </div>
+                     
+                     <div className="bg-white rounded-lg shadow-sm p-6">
+                       <div className="text-center mb-6">
+                         <h5 className="text-xl font-semibold text-gray-800 mb-2">Step 1: Contact Information</h5>
+                         <p className="text-gray-600">Let's start with the basic contact details</p>
+                       </div>
+                       
+                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                         <div>
+                           <label className="block text-sm font-medium text-gray-700 mb-2">Agent Name</label>
+                           <input
+                             type="text"
+                             placeholder="Enter agent name"
+                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                             disabled
+                           />
+                         </div>
+                         <div>
+                           <label className="block text-sm font-medium text-gray-700 mb-2">Relationship to Gamer</label>
+                           <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" disabled>
+                             <option>Parent</option>
+                             <option>Spouse</option>
+                             <option>Family Member</option>
+                             <option>Friend</option>
+                           </select>
+                         </div>
+                       </div>
+                       
+                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                         <div>
+                           <label className="block text-sm font-medium text-gray-700 mb-2">Gamer's First Name</label>
+                           <input
+                             type="text"
+                             placeholder="Enter first name"
+                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                             disabled
+                           />
+                         </div>
+                         <div>
+                           <label className="block text-sm font-medium text-gray-700 mb-2">Gamer's Last Name</label>
+                           <input
+                             type="text"
+                             placeholder="Enter last name"
+                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                             disabled
+                           />
+                         </div>
+                       </div>
+                       
+                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                         <div>
+                           <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                           <input
+                             type="email"
+                             placeholder="Enter email address"
+                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                             disabled
+                           />
+                         </div>
+                         <div>
+                           <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                           <input
+                             type="tel"
+                             placeholder="Enter phone number"
+                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                             disabled
+                           />
+                         </div>
+                       </div>
+                       
+                       <div className="flex justify-between items-center">
+                         <button
+                           className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+                           disabled
+                         >
+                           Previous
+                         </button>
+                         <div className="flex space-x-2">
+                           <span className="text-sm text-gray-500">Step 1 of 5</span>
+                           <button
+                             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                             disabled
+                           >
+                             Next
+                           </button>
+                         </div>
+                       </div>
+                     </div>
+                   </div>
+                   
+                   <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+                     <h4 className="font-medium text-blue-900 mb-2">Form Features:</h4>
+                     <ul className="text-sm text-blue-800 space-y-1">
+                       <li>• 5-step progressive form with contact, gaming profile, assessment, and treatment sections</li>
+                       <li>• Real-time validation and error handling</li>
+                       <li>• Emergency indicators detection for urgent cases</li>
+                       <li>• Automatic lead assignment to agents</li>
+                       <li>• Zoom meeting scheduling integration</li>
+                       <li>• Firebase data storage with real-time updates</li>
+                     </ul>
+                   </div>
+                   
+                   <div className="mt-4 flex space-x-4">
+                     <button
+                       onClick={() => window.open('/enhanced-intake?agent=AHRPE5559', '_blank')}
+                       className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                     >
+                       Open Live Form
+                     </button>
+                     <button
+                       onClick={() => window.open('/intake', '_blank')}
+                       className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
+                     >
+                       Open Basic Form
+                     </button>
+                   </div>
+                 </div>
+               </div>
+             )}
 
              {/* Analytics Tab */}
              {activeTab === 'analytics' && (
