@@ -84,14 +84,9 @@ export default function AdminDashboard() {
   });
   const router = useRouter();
 
-  const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD; // Use environment variable
+  const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'RTS2024Admin!'; // Use environment variable with fallback
 
   const handleLogin = () => {
-    if (!ADMIN_PASSWORD) {
-      alert('Admin password not configured. Please set NEXT_PUBLIC_ADMIN_PASSWORD environment variable.');
-      return;
-    }
-    
     if (password === ADMIN_PASSWORD) {
       setIsAuthenticated(true);
       loadDashboardData();
