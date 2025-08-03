@@ -21,8 +21,15 @@ export default function Home() {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       const agent = params.get('agent');
+      const showForm = params.get('showForm');
+      
       if (agent && !localStorage.getItem('agentName')) {
         localStorage.setItem('agentName', agent);
+      }
+      
+      // Automatically show the form if showForm=true is in the URL
+      if (showForm === 'true') {
+        setShowDemoForm(true);
       }
     }
   }, []);

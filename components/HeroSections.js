@@ -18,7 +18,8 @@ function HeroSectionContent() {
   const agentId = searchParams.get('agent') || 'AHRPE5559';
 
   const handleQualifyClick = () => {
-    router.push(`/enhanced-intake?agent=${agentId}`);
+    // Show the ATS replica form instead of routing to enhanced-intake
+    window.location.href = `/?agent=${agentId}&showForm=true`;
   };
 
   useEffect(() => {
