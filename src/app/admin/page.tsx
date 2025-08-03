@@ -431,6 +431,88 @@ export default function SimpleAdminDashboard() {
           </div>
         </div>
 
+        {/* API Connection Test */}
+        <div className="bg-white rounded-lg shadow p-6 mb-8">
+          <h2 className="text-xl font-bold text-gray-800 mb-4">🔗 API Connection Test</h2>
+          
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <button
+                  onClick={async () => {
+                    try {
+                      const response = await fetch('/api/gamer-lookup?platform=steam&username=testuser');
+                      const data = await response.json();
+                      if (data.error && data.error.includes('API key not configured')) {
+                        alert('❌ Steam API key not configured in production. Check Vercel environment variables.');
+                      } else {
+                        alert('✅ Steam API connection working!');
+                      }
+                    } catch (error) {
+                      alert('❌ Steam API connection failed. Check environment variables.');
+                    }
+                  }}
+                  className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+                >
+                  Test Steam API
+                </button>
+              </div>
+              
+              <div>
+                <button
+                  onClick={async () => {
+                    try {
+                      const response = await fetch('/api/gamer-lookup?platform=xbox&username=testuser');
+                      const data = await response.json();
+                      if (data.error && data.error.includes('API key not configured')) {
+                        alert('❌ Xbox API key not configured in production. Check Vercel environment variables.');
+                      } else {
+                        alert('✅ Xbox API connection working!');
+                      }
+                    } catch (error) {
+                      alert('❌ Xbox API connection failed. Check environment variables.');
+                    }
+                  }}
+                  className="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition"
+                >
+                  Test Xbox API
+                </button>
+              </div>
+              
+              <div>
+                <button
+                  onClick={async () => {
+                    try {
+                      const response = await fetch('/api/gamer-lookup?platform=playstation&username=testuser');
+                      const data = await response.json();
+                      if (data.qualificationStatus) {
+                        alert('✅ PlayStation API connection working!');
+                      } else {
+                        alert('❌ PlayStation API connection failed.');
+                      }
+                    } catch (error) {
+                      alert('❌ PlayStation API connection failed.');
+                    }
+                  }}
+                  className="w-full px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition"
+                >
+                  Test PlayStation API
+                </button>
+              </div>
+            </div>
+            
+            <div className="mt-4 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+              <h3 className="font-semibold text-yellow-800 mb-2">💡 API Connection Help</h3>
+              <ul className="text-sm text-yellow-700 space-y-1">
+                <li>• <strong>Steam:</strong> Requires STEAM_API_KEY in Vercel environment variables</li>
+                <li>• <strong>Xbox:</strong> Requires OPENXBL_API_KEY in Vercel environment variables</li>
+                <li>• <strong>PlayStation:</strong> Uses mock data (no API key needed)</li>
+                <li>• <strong>If tests fail:</strong> Add API keys to Vercel project settings</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
         {/* Gaming Lookup */}
         <div className="bg-white rounded-lg shadow p-6 mb-8">
           <h2 className="text-xl font-bold text-gray-800 mb-4">🎮 Gaming Profile Lookup</h2>
