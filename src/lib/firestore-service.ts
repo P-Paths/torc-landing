@@ -1,5 +1,5 @@
 // Firestore Data Service
-import { adminDb } from './firebase-admin';
+import { adminDb } from './firebase-admin-new';
 import { db } from './firebase';
 import { 
   collection, 
