@@ -113,8 +113,9 @@ export default function SimpleAdminDashboard() {
   };
 
   const generateQRCode = () => {
+    // Use production URL when deployed, fallback to localhost for development
     const baseUrl = process.env.NODE_ENV === 'production' 
-      ? 'https://your-vercel-domain.vercel.app' 
+      ? 'https://torc-landing.vercel.app' // Update this with your actual Vercel domain
       : 'http://localhost:3000';
     const url = `${baseUrl}/agent/${agentId}`;
     
@@ -347,7 +348,7 @@ export default function SimpleAdminDashboard() {
                     className="mx-auto border border-gray-300 rounded-lg"
                   />
                   <p className="mt-2 text-sm text-gray-600">
-                    This QR code links to: <code className="bg-gray-100 px-2 py-1 rounded">http://localhost:3000/agent/{agentId}</code>
+                    This QR code links to: <code className="bg-gray-100 px-2 py-1 rounded">{process.env.NODE_ENV === 'production' ? 'https://torc-landing.vercel.app' : 'http://localhost:3000'}/agent/{agentId}</code>
                   </p>
                 </div>
               </div>
