@@ -243,7 +243,7 @@ export default function SimpleAdminDashboard() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
           <h1 className="text-2xl font-bold text-gray-800 mb-6 text-center">
-            🎯 TORC Admin Dashboard
+            Plain Admin Dashboard
           </h1>
           
           <div className="space-y-4">
@@ -301,7 +301,7 @@ export default function SimpleAdminDashboard() {
           <div className="flex justify-between items-center py-4">
             <div>
               <h1 className="text-2xl font-bold text-gray-800">
-                🎯 TORC Admin Dashboard
+                Plain Admin Dashboard
               </h1>
               <p className="text-sm text-gray-600">
                 Agent: <span className="font-mono bg-blue-100 px-2 py-1 rounded">{agentId}</span>
@@ -422,8 +422,8 @@ export default function SimpleAdminDashboard() {
                     alt={`QR Code for Agent ${agentId}`}
                     className="mx-auto border border-gray-300 rounded-lg"
                   />
-                  <p className="mt-2 text-sm text-gray-600">
-                    This QR code links to: <code className="bg-gray-100 px-2 py-1 rounded">{process.env.NODE_ENV === 'production' ? 'https://torc-landing.vercel.app' : 'http://localhost:3000'}/agent/{agentId}</code>
+                  <p className="mt-2 text-sm text-gray-900">
+                    This QR code links to: <code className="bg-gray-100 px-2 py-1 rounded text-gray-900">{process.env.NODE_ENV === 'production' ? 'https://torc-landing.vercel.app' : 'http://localhost:3000'}/ats-form?agent={agentId}</code>
                   </p>
                 </div>
               </div>
@@ -461,7 +461,7 @@ export default function SimpleAdminDashboard() {
                   value={gamingLookup.username}
                   onChange={(e) => setGamingLookup(prev => ({ ...prev, username: e.target.value }))}
                   placeholder="Enter username"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                 />
               </div>
               
