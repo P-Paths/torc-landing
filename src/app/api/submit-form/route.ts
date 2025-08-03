@@ -43,8 +43,34 @@ export async function POST(request: NextRequest) {
     }
 
     // Production: Save to Firestore
-    const { adminDb } = await import('../../../../lib/firebase-admin');
+    const { initializeApp, getApps, cert } = await import('firebase-admin/app');
+    const { getFirestore } = await import('firebase-admin/firestore');
     
+    // Initialize Firebase Admin if not already initialized
+    if (!getApps().length) {
+      try {
+        if (process.env.FIREBASE_ADMIN_PRIVATE_KEY && process.env.FIREBASE_ADMIN_CLIENT_EMAIL) {
+          initializeApp({
+            credential: cert({
+              projectId: process.env.FIREBASE_ADMIN_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+              clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
+              privateKey: process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+            }),
+          });
+        } else {
+          initializeApp({
+            projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+          });
+        }
+      } catch (error) {
+        console.error('Firebase Admin initialization error:', error);
+        initializeApp({
+          projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+        });
+      }
+    }
+    
+    const adminDb = getFirestore();
     const docRef = await adminDb.collection('leads').add(leadData);
 
     return NextResponse.json({

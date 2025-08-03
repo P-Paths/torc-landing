@@ -161,7 +161,7 @@ const ATSReplicaForm: React.FC = () => {
             <p className="text-sm text-blue-800">
               <strong>What happens next:</strong><br/>
               • Your case will be reviewed<br/>
-              • You'll be contacted within 24-48 hours<br/>
+              • You&apos;ll be contacted within 24-48 hours<br/>
               • Free case evaluation provided
             </p>
           </div>
@@ -176,7 +176,7 @@ const ATSReplicaForm: React.FC = () => {
       <div className="bg-gradient-to-r from-red-600 via-orange-500 to-red-600 text-white text-center py-4 animate-slideDown shadow-lg">
         <div className="flex items-center justify-center space-x-3">
           <span className="text-2xl animate-pulse">🔥</span>
-          <strong className="text-xl font-bold animate-pulse">ACT NOW – THOUSANDS HAVE ALREADY CLAIMED: DON'T MISS OUT!</strong>
+                              <strong className="text-xl font-bold animate-pulse">ACT NOW – THOUSANDS HAVE ALREADY CLAIMED: DON&apos;T MISS OUT!</strong>
           <span className="text-2xl animate-pulse">🔥</span>
         </div>
       </div>
