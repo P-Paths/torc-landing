@@ -43,31 +43,31 @@ export async function POST(request: NextRequest) {
       submittedAt: new Date(),
       timestamp: new Date(),
       
-      // Contact Information
-      agentName: formData.agentName,
-      relationship: formData.relationship,
-      gamerFirstName: formData.gamerFirstName,
-      gamerLastName: formData.gamerLastName,
+      // Contact Information (handle both naming conventions)
+      agentName: formData.agentName || 'Form Referral',
+      relationship: formData.relationship || formData.familyMember,
+      gamerFirstName: formData.gamerFirstName || formData.firstName,
+      gamerLastName: formData.gamerLastName || formData.lastName,
       email: formData.email,
       phone: formData.phone,
-      bestTimeToCall: formData.bestTimeToCall,
+      bestTimeToCall: formData.bestTimeToCall || 'anytime',
       
       // Gaming Profile
-      platforms: formData.platforms,
-      gamertags: formData.gamertags,
+      platforms: formData.platforms || [],
+      gamertags: formData.gamertags || {},
       dailyHours: formData.dailyHours,
-      schedule: formData.schedule,
-      primaryGames: formData.primaryGames,
+      schedule: formData.schedule || [],
+      primaryGames: formData.primaryGames || formData.games || [],
       
       // Assessment
-      durationOfConcern: formData.durationOfConcern,
-      affectedAreas: formData.affectedAreas,
-      symptoms: formData.symptoms,
-      emergencyIndicators: formData.emergencyIndicators,
+      durationOfConcern: formData.durationOfConcern || 'unknown',
+      affectedAreas: formData.affectedAreas || [],
+      symptoms: formData.symptoms || [],
+      emergencyIndicators: formData.emergencyIndicators || [],
       
       // Treatment
-      helpType: formData.helpType,
-      previousAttempts: formData.previousAttempts,
+      helpType: formData.helpType || 'legal_compensation',
+      previousAttempts: formData.previousAttempts || [],
       zoomLink: formData.zoomLink || '',
       
       // Status and processing
@@ -82,7 +82,10 @@ export async function POST(request: NextRequest) {
       submissionSource: 'enhanced-intake-form',
       hasEmergencyIndicators: (formData.emergencyIndicators?.length || 0) > 0,
       totalSymptoms: formData.symptoms?.length || 0,
-      affectedAreasCount: formData.affectedAreas?.length || 0
+      affectedAreasCount: formData.affectedAreas?.length || 0,
+      
+      // Additional form data (if provided)
+      additionalData: formData.additionalData || {}
     };
 
     // Write to Firestore leads collection
