@@ -273,21 +273,25 @@ const EnhancedIntakeForm: React.FC = () => {
               </label>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 {[
-                  { value: 'xbox', label: '🟩 Xbox', tag: 'Gamertag' },
-                  { value: 'playstation', label: '🔵 PlayStation', tag: 'PSN ID' },
-                  { value: 'steam', label: '⚫ Steam', tag: 'Username' },
-                  { value: 'mobile', label: '📱 Mobile Gaming' },
-                  { value: 'pc', label: '💻 PC Gaming' },
-                  { value: 'multiple', label: '🎮 Multiple Platforms' }
+                  { value: 'xbox', label: '🟩 Xbox', tag: 'Gamertag', color: 'border-green-500 bg-green-50' },
+                  { value: 'playstation', label: '🔵 PlayStation', tag: 'PSN ID', color: 'border-blue-500 bg-blue-50' },
+                  { value: 'steam', label: '⚫ Steam', tag: 'Username', color: 'border-gray-800 bg-gray-50' },
+                  { value: 'mobile', label: '📱 Mobile Gaming', tag: 'Mobile', color: 'border-purple-500 bg-purple-50' },
+                  { value: 'pc', label: '💻 PC Gaming', tag: 'PC', color: 'border-orange-500 bg-orange-50' },
+                  { value: 'multiple', label: '🎮 Multiple Platforms', tag: 'Multi', color: 'border-indigo-500 bg-indigo-50' }
                 ].map(platform => (
-                  <label key={platform.value} className="flex items-center space-x-2">
+                  <label key={platform.value} className={`flex items-center space-x-3 p-3 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
+                    formData.platforms.includes(platform.value) 
+                      ? `${platform.color} shadow-md` 
+                      : 'border-gray-200 bg-white hover:border-gray-300'
+                  }`}>
                     <input
                       type="checkbox"
                       checked={formData.platforms.includes(platform.value)}
                       onChange={(e) => updateArrayField('platforms', platform.value, e.target.checked)}
                       className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                     />
-                    <span className="text-sm">{platform.label}</span>
+                    <span className="text-sm font-medium">{platform.label}</span>
                   </label>
                 ))}
               </div>
@@ -297,41 +301,44 @@ const EnhancedIntakeForm: React.FC = () => {
             {(formData.platforms.includes('xbox') || formData.platforms.includes('playstation') || formData.platforms.includes('steam')) && (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {formData.platforms.includes('xbox') && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Xbox Gamertag
+                  <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                    <label className="block text-sm font-medium text-green-800 mb-2">
+                      🟩 Xbox Gamertag
                     </label>
                     <input
                       type="text"
                       value={formData.gamertags.xbox || ''}
                       onChange={(e) => updateFormData('gamertags', { ...formData.gamertags, xbox: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black placeholder-gray-500 bg-white"
+                      className="w-full px-3 py-2 border border-green-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-black placeholder-green-400 bg-white"
+                      placeholder="Enter Xbox Gamertag"
                     />
                   </div>
                 )}
                 {formData.platforms.includes('playstation') && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      PlayStation PSN ID
+                  <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                    <label className="block text-sm font-medium text-blue-800 mb-2">
+                      🔵 PlayStation PSN ID
                     </label>
                     <input
                       type="text"
                       value={formData.gamertags.playstation || ''}
                       onChange={(e) => updateFormData('gamertags', { ...formData.gamertags, playstation: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black placeholder-gray-500 bg-white"
+                      className="w-full px-3 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black placeholder-blue-400 bg-white"
+                      placeholder="Enter PSN ID"
                     />
                   </div>
                 )}
                 {formData.platforms.includes('steam') && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Steam Username
+                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                    <label className="block text-sm font-medium text-gray-800 mb-2">
+                      ⚫ Steam Username
                     </label>
                     <input
                       type="text"
                       value={formData.gamertags.steam || ''}
                       onChange={(e) => updateFormData('gamertags', { ...formData.gamertags, steam: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black placeholder-gray-500 bg-white"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 text-black placeholder-gray-400 bg-white"
+                      placeholder="Enter Steam Username"
                     />
                   </div>
                 )}
@@ -342,25 +349,29 @@ const EnhancedIntakeForm: React.FC = () => {
               <label className="block text-sm font-medium text-gray-700 mb-3">
                 Daily Gaming Hours *
               </label>
-              <div className="space-y-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {[
-                  'Less than 2 hours',
-                  '2-4 hours',
-                  '4-8 hours', 
-                  '8-12 hours',
-                  'More than 12 hours',
-                  'I don\'t know'
+                  { value: 'Less than 2 hours', color: 'bg-green-50 border-green-200 text-green-800' },
+                  { value: '2-4 hours', color: 'bg-yellow-50 border-yellow-200 text-yellow-800' },
+                  { value: '4-8 hours', color: 'bg-orange-50 border-orange-200 text-orange-800' },
+                  { value: '8-12 hours', color: 'bg-red-50 border-red-200 text-red-800' },
+                  { value: 'More than 12 hours', color: 'bg-purple-50 border-purple-200 text-purple-800' },
+                  { value: 'I don\'t know', color: 'bg-gray-50 border-gray-200 text-gray-800' }
                 ].map(hours => (
-                  <label key={hours} className="flex items-center space-x-2">
+                  <label key={hours.value} className={`flex items-center space-x-3 p-3 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
+                    formData.dailyHours === hours.value 
+                      ? `${hours.color} shadow-md` 
+                      : 'border-gray-200 bg-white hover:border-gray-300'
+                  }`}>
                     <input
                       type="radio"
                       name="dailyHours"
-                      value={hours}
-                      checked={formData.dailyHours === hours}
+                      value={hours.value}
+                      checked={formData.dailyHours === hours.value}
                       onChange={(e) => updateFormData('dailyHours', e.target.value)}
                       className="text-blue-600 focus:ring-blue-500"
                     />
-                    <span className="text-sm text-black">{hours}</span>
+                    <span className="text-sm font-medium">{hours.value}</span>
                   </label>
                 ))}
               </div>

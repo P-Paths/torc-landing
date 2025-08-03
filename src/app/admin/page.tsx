@@ -23,6 +23,16 @@ interface DashboardStats {
   totalAgents: number;
 }
 
+interface Agent {
+  id: string;
+  name: string;
+  agentId: string;
+  password: string;
+  qrCodeUrl?: string;
+  createdAt: Date;
+  isActive: boolean;
+}
+
 interface GamingLookupResult {
   platform: string;
   username: string;
@@ -43,6 +53,7 @@ export default function SimpleAdminDashboard() {
   const [agentId, setAgentId] = useState('AHRPE5559');
   const [qrCodeUrl, setQrCodeUrl] = useState('');
   const [leads, setLeads] = useState<Lead[]>([]);
+  const [agents, setAgents] = useState<Agent[]>([]);
   const [stats, setStats] = useState<DashboardStats>({
     totalLeads: 0,
     recentLeads: 0,
@@ -50,6 +61,12 @@ export default function SimpleAdminDashboard() {
     totalAgents: 0
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [showAgentManagement, setShowAgentManagement] = useState(false);
+  const [newAgent, setNewAgent] = useState({
+    name: '',
+    agentId: '',
+    password: ''
+  });
   
   // Gaming Lookup State
   const [gamingLookup, setGamingLookup] = useState({
@@ -94,6 +111,13 @@ export default function SimpleAdminDashboard() {
         setLeads(leadsData.leads || []);
       }
 
+      // Load agents
+      const agentsResponse = await fetch('/api/admin/agents');
+      if (agentsResponse.ok) {
+        const agentsData = await agentsResponse.json();
+        setAgents(agentsData.agents || []);
+      }
+
       // Load stats
       const statsResponse = await fetch('/api/admin/stats');
       if (statsResponse.ok) {
@@ -112,12 +136,63 @@ export default function SimpleAdminDashboard() {
     }
   };
 
+  const createAgent = async () => {
+    if (!newAgent.name || !newAgent.agentId || !newAgent.password) {
+      alert('Please fill in all fields');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/admin/agents', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newAgent),
+      });
+
+      if (response.ok) {
+        alert('Agent created successfully!');
+        setNewAgent({ name: '', agentId: '', password: '' });
+        loadDashboardData();
+      } else {
+        const error = await response.json();
+        alert(error.error || 'Failed to create agent');
+      }
+    } catch (error) {
+      console.error('Error creating agent:', error);
+      alert('Failed to create agent');
+    }
+  };
+
+  const deleteAgent = async (agentId: string) => {
+    if (!confirm('Are you sure you want to delete this agent?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/admin/agents?id=${agentId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        alert('Agent deleted successfully!');
+        loadDashboardData();
+      } else {
+        alert('Failed to delete agent');
+      }
+    } catch (error) {
+      console.error('Error deleting agent:', error);
+      alert('Failed to delete agent');
+    }
+  };
+
   const generateQRCode = () => {
     // Use production URL when deployed, fallback to localhost for development
     const baseUrl = process.env.NODE_ENV === 'production' 
       ? 'https://torc-landing.vercel.app' // Update this with your actual Vercel domain
-      : 'http://localhost:3000';
-    const url = `${baseUrl}/agent/${agentId}`;
+      : 'http://localhost:3001';
+    const url = `${baseUrl}?agent=${agentId}`;
     
     const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(url)}`;
     setQrCodeUrl(qrApiUrl);
@@ -502,7 +577,7 @@ export default function SimpleAdminDashboard() {
                           <div className="text-right">
                             <p className="font-semibold text-gray-900">{game.hoursPlayed?.toLocaleString()} hours</p>
                             <p className="text-xs text-gray-500">
-                              {game.hoursPlayed ? Math.round((game.hoursPlayed / gamingLookup.result.totalHours) * 100) : 0}% of total
+                              {game.hoursPlayed && gamingLookup.result?.totalHours ? Math.round((game.hoursPlayed / gamingLookup.result.totalHours) * 100) : 0}% of total
                             </p>
                           </div>
                         </div>

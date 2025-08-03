@@ -12,7 +12,7 @@ import StepGuide from '../../components/StepGuide';
 import Footer from '../../components/Footer';
 import CompaniesInLawsuit from '../../components/CompaniesInLawsuit';
 import OptInMock from '../../components/OptInMock';
-import EnhancedIntakeForm from '../../components/EnhancedIntakeForm';
+import ATSReplicaForm from '../../components/ATSReplicaForm';
 
 export default function Home() {
   const [showDemoForm, setShowDemoForm] = useState(false);
@@ -31,7 +31,7 @@ export default function Home() {
     <main className="bg-white text-black min-h-screen px-6 py-10 font-sans">
       <HeroSection />
       {/* Moved the button further down, below testimonials */}
-      {showDemoForm && <EnhancedIntakeForm />}
+      {showDemoForm && <ATSReplicaForm />}
       {/* Temporarily disabled for build fix */}
       {/* <QualificationsSection /> */}
       <StepGuide />
@@ -39,12 +39,12 @@ export default function Home() {
       <GamerTagHelp />
       <CompaniesInLawsuit />
       {/* <Testimonials /> */}
-      <div className="text-center my-8">
+      <div className="text-center my-8 space-y-4">
         <button
           className="inline-block bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition"
           onClick={() => setShowDemoForm(!showDemoForm)}
         >
-          {showDemoForm ? 'Hide Enhanced Intake Form' : '📝 Start Gaming Addiction Assessment'}
+          {showDemoForm ? 'Hide Gaming Addiction Assessment' : '📝 See If You Qualify'}
         </button>
       </div>
       <TreatmentOptionsSection />
