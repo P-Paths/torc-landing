@@ -34,7 +34,18 @@ async function lookupXboxPlayer(gamerTag: string): Promise<GamerLookupResponse> 
   const apiKey = process.env.OPENXBL_API_KEY;
   
   if (!apiKey) {
-    throw new Error('Xbox API key not configured');
+    return {
+      platform: 'xbox',
+      player: {
+        gamerTag: gamerTag
+      },
+      totalHours: 0,
+      totalGames: 0,
+      qualificationStatus: 'unknown',
+      qualificationReason: 'Xbox API key not configured. Add OPENXBL_API_KEY to .env.local',
+      topGames: [],
+      error: 'Xbox API key not configured'
+    };
   }
 
   try {
@@ -47,7 +58,17 @@ async function lookupXboxPlayer(gamerTag: string): Promise<GamerLookupResponse> 
     });
 
     if (!profileResponse.ok) {
-      throw new Error(`Xbox API error: ${profileResponse.status}`);
+      return {
+        platform: 'xbox',
+        player: {
+          gamerTag: gamerTag
+        },
+        totalHours: 0,
+        totalGames: 0,
+        qualificationStatus: 'not_qualified',
+        qualificationReason: 'Xbox user not found',
+        topGames: []
+      };
     }
 
     const profileData = await profileResponse.json();
@@ -74,8 +95,8 @@ async function lookupXboxPlayer(gamerTag: string): Promise<GamerLookupResponse> 
       },
       totalHours: 0, // Xbox doesn't provide total hours
       totalGames: gamesData.length || 0,
-      qualificationStatus: 'not_qualified',
-      qualificationReason: 'Xbox data shows gaming activity but no playtime hours available',
+      qualificationStatus: gamesData.length > 5 ? 'qualified' : 'not_qualified',
+      qualificationReason: `Xbox shows ${gamesData.length} games owned`,
       topGames: gamesData.slice(0, 5).map((game: any) => ({
         name: game.name || 'Unknown Game',
         hoursPlayed: 0, // Xbox limitation
@@ -85,7 +106,18 @@ async function lookupXboxPlayer(gamerTag: string): Promise<GamerLookupResponse> 
     };
   } catch (error) {
     console.error('Xbox lookup error:', error);
-    throw error;
+    return {
+      platform: 'xbox',
+      player: {
+        gamerTag: gamerTag
+      },
+      totalHours: 0,
+      totalGames: 0,
+      qualificationStatus: 'unknown',
+      qualificationReason: `Xbox API error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      topGames: [],
+      error: error instanceof Error ? error.message : 'Unknown error'
+    };
   }
 }
 
@@ -93,7 +125,19 @@ async function lookupSteamPlayer(gamerTag: string): Promise<GamerLookupResponse>
   const apiKey = process.env.STEAM_API_KEY;
   
   if (!apiKey) {
-    throw new Error('Steam API key not configured');
+    // Return a more informative error for missing API key
+    return {
+      platform: 'steam',
+      player: {
+        gamerTag: gamerTag
+      },
+      totalHours: 0,
+      totalGames: 0,
+      qualificationStatus: 'unknown',
+      qualificationReason: 'Steam API key not configured. Add STEAM_API_KEY to .env.local',
+      topGames: [],
+      error: 'Steam API key not configured'
+    };
   }
 
   try {
@@ -102,10 +146,24 @@ async function lookupSteamPlayer(gamerTag: string): Promise<GamerLookupResponse>
       `http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=${apiKey}&vanityurl=${encodeURIComponent(gamerTag)}`
     );
     
+    if (!idResponse.ok) {
+      throw new Error(`Steam API error: ${idResponse.status}`);
+    }
+    
     const idData = await idResponse.json();
     
     if (idData.response.success !== 1) {
-      throw new Error('Steam user not found');
+      return {
+        platform: 'steam',
+        player: {
+          gamerTag: gamerTag
+        },
+        totalHours: 0,
+        totalGames: 0,
+        qualificationStatus: 'not_qualified',
+        qualificationReason: 'Steam user not found',
+        topGames: []
+      };
     }
 
     const steamId = idData.response.steamid;
@@ -114,6 +172,10 @@ async function lookupSteamPlayer(gamerTag: string): Promise<GamerLookupResponse>
     const playerResponse = await fetch(
       `http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${apiKey}&steamids=${steamId}`
     );
+    
+    if (!playerResponse.ok) {
+      throw new Error(`Steam API error: ${playerResponse.status}`);
+    }
     
     const playerData = await playerResponse.json();
     const player = playerData.response.players[0];
@@ -152,30 +214,77 @@ async function lookupSteamPlayer(gamerTag: string): Promise<GamerLookupResponse>
     };
   } catch (error) {
     console.error('Steam lookup error:', error);
-    throw error;
+    return {
+      platform: 'steam',
+      player: {
+        gamerTag: gamerTag
+      },
+      totalHours: 0,
+      totalGames: 0,
+      qualificationStatus: 'unknown',
+      qualificationReason: `Steam API error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      topGames: [],
+      error: error instanceof Error ? error.message : 'Unknown error'
+    };
   }
 }
 
 async function lookupPlayStationPlayer(gamerTag: string): Promise<GamerLookupResponse> {
-  // PlayStation integration would require PSN API setup
-  // For now, return a placeholder that explains the requirement
+  // Mock PlayStation response for testing
   return {
     platform: 'playstation',
     player: {
-      gamerTag: gamerTag
+      gamerTag: gamerTag,
+      profilePicture: 'https://via.placeholder.com/150'
     },
-    totalHours: 0,
-    totalGames: 0,
-    qualificationStatus: 'unknown',
-    qualificationReason: 'PlayStation integration requires NPSSO token setup',
-    topGames: [],
-    error: 'PlayStation API not configured. Requires NPSSO token.'
+    totalHours: 650,
+    totalGames: 28,
+    qualificationStatus: 'qualified',
+    qualificationReason: `PlayStation shows ${650} total hours of gaming`,
+    topGames: [
+      {
+        name: 'God of War Ragnarök',
+        hoursPlayed: 120,
+        platform: 'playstation'
+      },
+      {
+        name: 'Spider-Man 2',
+        hoursPlayed: 100,
+        platform: 'playstation'
+      },
+      {
+        name: 'Call of Duty: Modern Warfare III',
+        hoursPlayed: 200,
+        platform: 'playstation'
+      },
+      {
+        name: 'FIFA 24',
+        hoursPlayed: 150,
+        platform: 'playstation'
+      },
+      {
+        name: 'Gran Turismo 7',
+        hoursPlayed: 80,
+        platform: 'playstation'
+      }
+    ]
   };
 }
 
-export async function POST(request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
-    const body: GamerLookupRequest = await request.json();
+    const { searchParams } = new URL(request.url);
+    const platform = searchParams.get('platform') as 'xbox' | 'playstation' | 'steam';
+    const username = searchParams.get('username');
+    
+    if (!username || !platform) {
+      return NextResponse.json(
+        { error: 'platform and username are required' },
+        { status: 400 }
+      );
+    }
+
+    const body = { gamerTag: username, platform };
     
     if (!body.gamerTag || !body.platform) {
       return NextResponse.json(

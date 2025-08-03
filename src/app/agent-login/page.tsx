@@ -4,15 +4,15 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 // Simple agent credentials (in production, use proper authentication)
-const AGENT_CREDENTIALS: Record<string, { password: string; name: string }> = {
-  'AHRPE5559': { password: 'agent123', name: 'Agent AHRPE5559' },
-  'BHRPE6660': { password: 'agent456', name: 'Agent BHRPE6660' },
-  'CHRPE7771': { password: 'agent789', name: 'Agent CHRPE7771' },
+const AGENT_CREDENTIALS: Record<string, { password: string; name: string; agentId: string }> = {
+  'john': { password: 'agent123', name: 'John Smith', agentId: 'AHRPE5559' },
+  'sarah': { password: 'agent456', name: 'Sarah Johnson', agentId: 'BHRPE6660' },
+  'mike': { password: 'agent789', name: 'Mike Davis', agentId: 'CHRPE7771' },
   // Add more agents as needed
 };
 
 export default function AgentLoginPage() {
-  const [agentId, setAgentId] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -24,16 +24,16 @@ export default function AgentLoginPage() {
     setError('');
 
     // Simple authentication check
-    if (AGENT_CREDENTIALS[agentId] && AGENT_CREDENTIALS[agentId].password === password) {
+    if (AGENT_CREDENTIALS[username] && AGENT_CREDENTIALS[username].password === password) {
       // Store agent session
-      localStorage.setItem('agentId', agentId);
-      localStorage.setItem('agentName', AGENT_CREDENTIALS[agentId].name);
+      localStorage.setItem('agentId', AGENT_CREDENTIALS[username].agentId);
+      localStorage.setItem('agentName', AGENT_CREDENTIALS[username].name);
       localStorage.setItem('isAgentLoggedIn', 'true');
       
-      // Redirect to admin dashboard
-      router.push('/admin');
+      // Redirect to agent dashboard
+      router.push('/agent-dashboard');
     } else {
-      setError('Invalid agent ID or password');
+      setError('Invalid username or password');
     }
     
     setIsLoading(false);
@@ -56,19 +56,19 @@ export default function AgentLoginPage() {
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <form className="space-y-6" onSubmit={handleLogin}>
             <div>
-              <label htmlFor="agentId" className="block text-sm font-medium text-gray-700">
-                Agent ID
+              <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+                Username
               </label>
               <div className="mt-1">
                 <input
-                  id="agentId"
-                  name="agentId"
+                  id="username"
+                  name="username"
                   type="text"
                   required
-                  value={agentId}
-                  onChange={(e) => setAgentId(e.target.value.toUpperCase())}
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value.toLowerCase())}
                   className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  placeholder="e.g., AHRPE5559"
+                  placeholder="e.g., john"
                 />
               </div>
             </div>
@@ -118,9 +118,9 @@ export default function AgentLoginPage() {
               </div>
             </div>
             <div className="mt-4 text-xs text-gray-500 space-y-1">
-              <p><strong>Agent ID:</strong> AHRPE5559 | <strong>Password:</strong> agent123</p>
-              <p><strong>Agent ID:</strong> BHRPE6660 | <strong>Password:</strong> agent456</p>
-              <p><strong>Agent ID:</strong> CHRPE7771 | <strong>Password:</strong> agent789</p>
+              <p><strong>Username:</strong> john | <strong>Password:</strong> agent123</p>
+              <p><strong>Username:</strong> sarah | <strong>Password:</strong> agent456</p>
+              <p><strong>Username:</strong> mike | <strong>Password:</strong> agent789</p>
             </div>
           </div>
         </div>
