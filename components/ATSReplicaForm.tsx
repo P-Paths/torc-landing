@@ -404,6 +404,10 @@ const ATSReplicaForm: React.FC = () => {
                           other: { label: 'Other (Please specify):', color: 'bg-purple-100 text-purple-800' }
                         }[platform];
                         
+                        if (!platformInfo) {
+                          return null;
+                        }
+                        
                         return (
                           <span key={platform} className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-bold ${platformInfo.color} animate-fadeInUp shadow-lg border-2 border-white`} style={{ animationDelay: `${index * 100}ms` }}>
                             {platformInfo.label}
