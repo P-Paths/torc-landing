@@ -45,17 +45,17 @@ export async function POST(request: NextRequest) {
       
       // Contact Information (handle both naming conventions)
       agentName: formData.agentName || 'Form Referral',
-      relationship: formData.relationship || formData.familyMember,
-      gamerFirstName: formData.gamerFirstName || formData.firstName,
-      gamerLastName: formData.gamerLastName || formData.lastName,
-      email: formData.email,
-      phone: formData.phone,
+      relationship: formData.relationship || formData.familyMember || 'unknown',
+      gamerFirstName: formData.gamerFirstName || formData.firstName || '',
+      gamerLastName: formData.gamerLastName || formData.lastName || '',
+      email: formData.email || '',
+      phone: formData.phone || '',
       bestTimeToCall: formData.bestTimeToCall || 'anytime',
       
       // Gaming Profile
       platforms: formData.platforms || [],
       gamertags: formData.gamertags || {},
-      dailyHours: formData.dailyHours,
+      dailyHours: formData.dailyHours || '',
       schedule: formData.schedule || [],
       primaryGames: formData.primaryGames || formData.games || [],
       
