@@ -80,9 +80,9 @@ export async function POST(request: NextRequest) {
       // Additional metadata for tracking
       formVersion: 'enhanced-v1',
       submissionSource: 'enhanced-intake-form',
-      hasEmergencyIndicators: formData.emergencyIndicators.length > 0,
-      totalSymptoms: formData.symptoms.length,
-      affectedAreasCount: formData.affectedAreas.length
+      hasEmergencyIndicators: (formData.emergencyIndicators?.length || 0) > 0,
+      totalSymptoms: formData.symptoms?.length || 0,
+      affectedAreasCount: formData.affectedAreas?.length || 0
     };
 
     // Write to Firestore leads collection

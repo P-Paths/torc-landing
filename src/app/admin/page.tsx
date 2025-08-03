@@ -444,11 +444,11 @@ export default function SimpleAdminDashboard() {
                 <select
                   value={gamingLookup.platform}
                   onChange={(e) => setGamingLookup(prev => ({ ...prev, platform: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                 >
-                  <option value="steam">Steam</option>
-                  <option value="xbox">Xbox</option>
-                  <option value="playstation">PlayStation</option>
+                  <option value="steam" className="text-gray-900">Steam</option>
+                  <option value="xbox" className="text-gray-900">Xbox</option>
+                  <option value="playstation" className="text-gray-900">PlayStation</option>
                 </select>
               </div>
               
