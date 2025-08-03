@@ -98,14 +98,17 @@ export async function POST(request: NextRequest) {
       totalSymptoms: leadDocument.totalSymptoms
     });
 
-    return NextResponse.json({ 
+    const response = { 
       success: true, 
       message: 'Enhanced intake form submitted successfully',
       documentId: docRef.id,
       agentId: agentId,
       hasEmergencyIndicators: leadDocument.hasEmergencyIndicators,
       timestamp: leadDocument.submittedAt
-    });
+    };
+
+    console.log('Returning response:', response);
+    return NextResponse.json(response);
 
   } catch (error) {
     console.error('Enhanced lead submission error:', error);

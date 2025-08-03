@@ -136,9 +136,13 @@ const ATSReplicaForm: React.FC = () => {
       });
 
       if (response.ok) {
+        const result = await response.json();
+        console.log('Form submission successful:', result);
         setSubmitSuccess(true);
       } else {
-        throw new Error('Submission failed');
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Form submission failed:', response.status, errorData);
+        throw new Error(`Submission failed: ${response.status} - ${errorData.error || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('Error submitting form:', error);
