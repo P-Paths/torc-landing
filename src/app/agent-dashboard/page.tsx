@@ -89,28 +89,28 @@ export default function AgentDashboard() {
 
       // Calculate stats
       const totalLeads = agentLeads.length;
-      const recentLeads = agentLeads.filter(lead => 
+      const recentLeads = agentLeads.filter((lead: Lead) => 
         new Date(lead.submittedAt).getTime() > Date.now() - 7 * 24 * 60 * 60 * 1000
       ).length;
-      const emergencyLeads = agentLeads.filter(lead => lead.hasEmergencyIndicators).length;
+      const emergencyLeads = agentLeads.filter((lead: Lead) => lead.hasEmergencyIndicators).length;
       const averageSymptoms = agentLeads.length > 0 
-        ? agentLeads.reduce((sum, lead) => sum + lead.totalSymptoms, 0) / agentLeads.length 
+        ? agentLeads.reduce((sum: number, lead: Lead) => sum + lead.totalSymptoms, 0) / agentLeads.length 
         : 0;
-      const convertedLeads = agentLeads.filter(lead => lead.status === 'converted').length;
+      const convertedLeads = agentLeads.filter((lead: Lead) => lead.status === 'converted').length;
       const conversionRate = totalLeads > 0 ? (convertedLeads / totalLeads) * 100 : 0;
 
       // Platform stats
       const platformStats = {
-        xbox: agentLeads.filter(lead => lead.gamingPlatforms?.xbox).length,
-        playstation: agentLeads.filter(lead => lead.gamingPlatforms?.playstation).length,
-        steam: agentLeads.filter(lead => lead.gamingPlatforms?.steam).length
+        xbox: agentLeads.filter((lead: Lead) => lead.gamingPlatforms?.xbox).length,
+        playstation: agentLeads.filter((lead: Lead) => lead.gamingPlatforms?.playstation).length,
+        steam: agentLeads.filter((lead: Lead) => lead.gamingPlatforms?.steam).length
       };
 
       // Zoom stats
       const zoomMeetings = {
-        scheduled: agentLeads.filter(lead => lead.status === 'zoom_scheduled').length,
-        completed: agentLeads.filter(lead => lead.status === 'zoom_completed').length,
-        pending: agentLeads.filter(lead => lead.status === 'contacted').length
+        scheduled: agentLeads.filter((lead: Lead) => lead.status === 'zoom_scheduled').length,
+        completed: agentLeads.filter((lead: Lead) => lead.status === 'zoom_completed').length,
+        pending: agentLeads.filter((lead: Lead) => lead.status === 'contacted').length
       };
 
       setStats({
