@@ -11,7 +11,7 @@ export default function QRCodeGenerator() {
     const baseUrl = process.env.NODE_ENV === 'production' 
       ? 'https://your-vercel-domain.vercel.app' // Update this with your actual Vercel domain
       : 'http://localhost:3000';
-    const url = `${baseUrl}/agent/${agentId}`;
+    const url = `${baseUrl}/ats-form?agent=${agentId}`;
     
     // Using a free QR code API
     const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(url)}`;
@@ -75,7 +75,7 @@ export default function QRCodeGenerator() {
                 className="mx-auto border border-gray-300 rounded-lg"
               />
               <p className="mt-2 text-sm text-gray-600">
-                This QR code links to: <code className="bg-gray-100 px-2 py-1 rounded">http://localhost:3000/agent/{agentId}</code>
+                This QR code links to: <code className="bg-gray-100 px-2 py-1 rounded">http://localhost:3000/ats-form?agent={agentId}</code>
               </p>
             </div>
           </div>
