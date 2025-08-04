@@ -120,20 +120,6 @@ async function lookupXboxPlayer(gamerTag: string): Promise<GamerLookupResponse> 
         topGames: []
       };
     }
-
-    return {
-      platform: 'xbox',
-      player: {
-        gamerTag: people?.gamertag || user.gamertag || gamerTag,
-        gamerscore: parseInt(people?.gamerScore) || 0,
-        profilePicture: people?.displayPicRaw
-      },
-      totalHours: 0, // Xbox doesn't provide total hours
-      totalGames: 0,
-      qualificationStatus: 'qualified',
-      qualificationReason: 'Xbox user found and verified',
-      topGames: []
-    };
   } catch (error) {
     console.error('Xbox lookup error:', error);
     return {
