@@ -124,20 +124,15 @@ async function lookupXboxPlayer(gamerTag: string): Promise<GamerLookupResponse> 
     return {
       platform: 'xbox',
       player: {
-        gamerTag: profileData.gamerTag || gamerTag,
-        gamerscore: profileData.gamerScore || 0,
-        profilePicture: profileData.displayPicRaw
+        gamerTag: people?.gamertag || user.gamertag || gamerTag,
+        gamerscore: parseInt(people?.gamerScore) || 0,
+        profilePicture: people?.displayPicRaw
       },
       totalHours: 0, // Xbox doesn't provide total hours
-      totalGames: gamesData.length || 0,
-      qualificationStatus: gamesData.length > 5 ? 'qualified' : 'not_qualified',
-      qualificationReason: `Xbox shows ${gamesData.length} games owned`,
-      topGames: gamesData.slice(0, 5).map((game: any) => ({
-        name: game.name || 'Unknown Game',
-        hoursPlayed: 0, // Xbox limitation
-        platform: 'xbox',
-        achievements: game.currentAchievements || 0
-      }))
+      totalGames: 0,
+      qualificationStatus: 'qualified',
+      qualificationReason: 'Xbox user found and verified',
+      topGames: []
     };
   } catch (error) {
     console.error('Xbox lookup error:', error);
