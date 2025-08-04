@@ -86,7 +86,7 @@ async function lookupXboxPlayer(gamerTag: string): Promise<GamerLookupResponse> 
         }
       });
 
-      let profileData = {};
+      let profileData: any = {};
       if (profileResponse.ok) {
         profileData = await profileResponse.json();
       }
