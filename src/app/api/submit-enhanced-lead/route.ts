@@ -1,26 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { initializeApp, getApps, cert, applicationDefault } from 'firebase-admin/app';
+import { initializeApp, getApps } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 
 // Initialize Firebase Admin if not already initialized
 if (!getApps().length) {
   try {
-    // Use Application Default Credentials (ADC) with Workload Identity Federation
-    // This will automatically use the Vercel service account through WIF
+    // Simple initialization with just project ID - this should work in Vercel
     initializeApp({
-      credential: applicationDefault(),
-      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'gaming-funnel',
+      projectId: 'gaming-funnel',
     });
-    console.log('Firebase Admin initialized with ADC (Workload Identity Federation)');
+    console.log('Firebase Admin initialized with project ID only');
   } catch (error) {
     console.error('Firebase Admin initialization error:', error);
-    
-    // Fallback: try with just project ID
+    // If that fails, try with the environment variable
     try {
       initializeApp({
         projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'gaming-funnel',
       });
-      console.log('Firebase Admin initialized with project ID only (fallback)');
+      console.log('Firebase Admin initialized with env project ID');
     } catch (fallbackError) {
       console.error('Firebase Admin fallback initialization error:', fallbackError);
       throw fallbackError;

@@ -98,7 +98,7 @@ const ATSReplicaForm: React.FC = () => {
     try {
       const agentId = new URLSearchParams(window.location.search).get('agent') || 'AHRPE5559';
       
-      const response = await fetch(`/api/test-simple?agent=${agentId}`, {
+      const response = await fetch(`/api/submit-enhanced-lead?agent=${agentId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
