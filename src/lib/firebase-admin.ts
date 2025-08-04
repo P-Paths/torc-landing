@@ -5,44 +5,40 @@ import { getAuth } from 'firebase-admin/auth';
 
 if (!getApps().length) {
   try {
-    // Try to initialize with just project ID - this should work in Vercel
+    // Use Application Default Credentials (ADC) - recommended approach
     initializeApp({
-      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'gaming-funnel',
+      credential: applicationDefault(),
+      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'gaming-funnel-1fdf3',
     });
-    console.log('Firebase Admin initialized with project ID only');
+    console.log('✅ Firebase Admin initialized with Application Default Credentials');
   } catch (error) {
-    console.error('Firebase Admin initialization error:', error);
+    console.error('❌ ADC initialization failed:', error);
     
-    // If that fails, try with service account credentials
+    // Fallback to service account credentials if available
     if (process.env.FIREBASE_ADMIN_PRIVATE_KEY && process.env.FIREBASE_ADMIN_CLIENT_EMAIL) {
       try {
         initializeApp({
           credential: cert({
-            projectId: process.env.FIREBASE_ADMIN_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+            projectId: process.env.FIREBASE_ADMIN_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'gaming-funnel-1fdf3',
             clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
             privateKey: process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, '\n'),
           }),
         });
-        console.log('Firebase Admin initialized with service account credentials');
+        console.log('✅ Firebase Admin initialized with service account credentials');
       } catch (certError) {
-        console.error('Service account credentials failed:', certError);
+        console.error('❌ Service account credentials failed:', certError);
         throw certError;
       }
     } else {
-      // Last resort - try ADC
+      // Last resort - initialize without credential (will use ADC)
       try {
         initializeApp({
-          credential: applicationDefault(),
-          projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'gaming-funnel',
+          projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'gaming-funnel-1fdf3',
         });
-        console.log('Firebase Admin initialized with ADC');
-      } catch (adcError) {
-        console.error('ADC failed:', adcError);
-        // Final fallback - initialize without credential
-        initializeApp({
-          projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'gaming-funnel',
-        });
-        console.log('Firebase Admin initialized without credential (fallback)');
+        console.log('✅ Firebase Admin initialized without credential (fallback)');
+      } catch (fallbackError) {
+        console.error('❌ All Firebase initialization methods failed:', fallbackError);
+        throw fallbackError;
       }
     }
   }

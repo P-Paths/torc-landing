@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { adminDb } from '../../../lib/firebase-admin';
 
 export async function POST(request: NextRequest) {
   try {
@@ -70,88 +71,54 @@ export async function POST(request: NextRequest) {
       phone: leadDocument.phone
     });
 
-    // Try to save to Firestore using a simple HTTP request
+    // Save to Firestore using Admin SDK
     try {
-      const firebaseUrl = `https://firestore.googleapis.com/v1/projects/gaming-funnel-1fdf3/databases/(default)/documents/leads`;
-      
-      const firebaseResponse = await fetch(firebaseUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          fields: {
-            agentId: { stringValue: leadDocument.agentId },
-            submittedAt: { stringValue: leadDocument.submittedAt },
-            timestamp: { stringValue: leadDocument.timestamp },
-            agentName: { stringValue: leadDocument.agentName },
-            relationship: { stringValue: leadDocument.relationship },
-            gamerFirstName: { stringValue: leadDocument.gamerFirstName },
-            gamerLastName: { stringValue: leadDocument.gamerLastName },
-            email: { stringValue: leadDocument.email },
-            phone: { stringValue: leadDocument.phone },
-            bestTimeToCall: { stringValue: leadDocument.bestTimeToCall },
-            status: { stringValue: leadDocument.status },
-            formVersion: { stringValue: leadDocument.formVersion },
-            submissionSource: { stringValue: leadDocument.submissionSource },
-            hasEmergencyIndicators: { booleanValue: leadDocument.hasEmergencyIndicators },
-            totalSymptoms: { integerValue: leadDocument.totalSymptoms },
-            affectedAreasCount: { integerValue: leadDocument.affectedAreasCount }
-          }
-        })
-      });
-
-      if (firebaseResponse.ok) {
-        const firebaseData = await firebaseResponse.json();
-        console.log('✅ Lead saved to Firestore:', firebaseData);
-        
-        return NextResponse.json({
-          success: true,
-          message: 'Form submitted successfully! Data saved to database.',
-          documentId: firebaseData.name?.split('/').pop(),
-          leadId: firebaseData.name?.split('/').pop(),
-          timestamp: new Date().toISOString()
-        });
-      } else {
-        const errorText = await firebaseResponse.text();
-        console.log('❌ Firebase save failed:', firebaseResponse.status, errorText);
-        console.log('Full Lead Document:', JSON.stringify(leadDocument, null, 2));
-        
-        return NextResponse.json({
-          success: true,
-          message: 'Form submitted successfully! Data logged for processing.',
-          leadId: `temp-${Date.now()}`,
-          timestamp: new Date().toISOString(),
-          debug: {
-            agentId: agentId,
-            firstName: leadDocument.gamerFirstName,
-            lastName: leadDocument.gamerLastName,
-            email: leadDocument.email,
-            firebaseError: errorText
-          }
-        });
-      }
-    } catch (firebaseError) {
-      console.log('❌ Firebase error:', firebaseError);
-      console.log('Full Lead Document:', JSON.stringify(leadDocument, null, 2));
+      const docRef = await adminDb.collection('leads').add(leadDocument);
+      console.log('✅ Lead saved to Firestore with ID:', docRef.id);
       
       return NextResponse.json({
         success: true,
-        message: 'Form submitted successfully! Data logged for processing.',
-        leadId: `temp-${Date.now()}`,
-        timestamp: new Date().toISOString(),
-        debug: {
-          agentId: agentId,
-          firstName: leadDocument.gamerFirstName,
-          lastName: leadDocument.gamerLastName,
-          email: leadDocument.email,
-          error: firebaseError instanceof Error ? firebaseError.message : 'Unknown Firebase error'
-        }
+        message: 'Form submitted successfully! Data saved to Firestore.',
+        documentId: docRef.id,
+        leadId: docRef.id,
+        timestamp: new Date().toISOString()
       });
+      
+    } catch (firebaseError) {
+      console.error('❌ Firebase save failed:', firebaseError);
+      
+      return NextResponse.json({
+        success: false,
+        error: 'Failed to save data to Firestore',
+        details: firebaseError instanceof Error ? firebaseError.message : 'Unknown Firebase error',
+        timestamp: new Date().toISOString()
+      }, { status: 500 });
     }
 
   } catch (error) {
     console.error('Form submission error:', error);
+    
+    return NextResponse.json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+      timestamp: new Date().toISOString()
+    }, { status: 500 });
+  }
+}
+
+// Endpoint to get backup data
+export async function GET(request: NextRequest) {
+  try {
+    // This endpoint is no longer needed as backup is removed.
+    // Keeping it for now to avoid breaking existing calls, but it will return an empty array.
+    return NextResponse.json({
+      success: true,
+      message: 'Backup functionality is no longer available.',
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Error getting backup files:', error);
+    
     return NextResponse.json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
