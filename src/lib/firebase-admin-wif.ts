@@ -39,7 +39,17 @@ if (!getApps().length) {
     }
   } catch (error) {
     console.error('❌ Firebase Admin initialization failed:', error);
-    throw error;
+    
+    // Final fallback - try without credential (will use ADC)
+    try {
+      initializeApp({
+        projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'gaming-funnel-1fdf3',
+      });
+      console.log('✅ Firebase Admin initialized without credential (fallback)');
+    } catch (fallbackError) {
+      console.error('❌ All Firebase initialization methods failed:', fallbackError);
+      throw fallbackError;
+    }
   }
 }
 
