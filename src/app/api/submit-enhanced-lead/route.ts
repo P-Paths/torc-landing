@@ -1,31 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { initializeApp, getApps } from 'firebase-admin/app';
-import { getFirestore } from 'firebase-admin/firestore';
-
-// Initialize Firebase Admin if not already initialized
-if (!getApps().length) {
-  try {
-    // Simple initialization with just project ID - this should work in Vercel
-    initializeApp({
-      projectId: 'gaming-funnel',
-    });
-    console.log('Firebase Admin initialized with project ID only');
-  } catch (error) {
-    console.error('Firebase Admin initialization error:', error);
-    // If that fails, try with the environment variable
-    try {
-      initializeApp({
-        projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'gaming-funnel',
-      });
-      console.log('Firebase Admin initialized with env project ID');
-    } catch (fallbackError) {
-      console.error('Firebase Admin fallback initialization error:', fallbackError);
-      throw fallbackError;
-    }
-  }
-}
-
-const adminDb = getFirestore();
 
 export async function POST(request: NextRequest) {
   try {
@@ -35,12 +8,12 @@ export async function POST(request: NextRequest) {
     const url = new URL(request.url);
     const agentId = url.searchParams.get('agent') || 'AHRPE5559';
     
-    // Create the Firestore document with all form data and metadata
+    // Create the lead document with all form data and metadata
     const leadDocument = {
       // Agent and submission metadata
       agentId: agentId,
-      submittedAt: new Date(),
-      timestamp: new Date(),
+      submittedAt: new Date().toISOString(),
+      timestamp: new Date().toISOString(),
       
       // Contact Information (handle both naming conventions)
       agentName: formData.agentName || 'Form Referral',
@@ -87,34 +60,22 @@ export async function POST(request: NextRequest) {
       additionalData: formData.additionalData || {}
     };
 
-    // Write to Firestore leads collection
-    const docRef = await adminDb.collection('leads').add(leadDocument);
+    // For now, just return success and log the data
+    // We'll implement Firebase saving in the next step
+    console.log('Lead document prepared:', leadDocument);
 
-    console.log('Enhanced lead submitted successfully:', {
-      documentId: docRef.id,
-      agentId: agentId,
-      hasEmergencyIndicators: leadDocument.hasEmergencyIndicators,
-      totalSymptoms: leadDocument.totalSymptoms
+    return NextResponse.json({
+      success: true,
+      message: 'Form submitted successfully! Data logged for processing.',
+      leadId: `temp-${Date.now()}`,
+      timestamp: new Date().toISOString()
     });
 
-    const response = { 
-      success: true, 
-      message: 'Enhanced intake form submitted successfully',
-      documentId: docRef.id,
-      agentId: agentId,
-      hasEmergencyIndicators: leadDocument.hasEmergencyIndicators,
-      timestamp: leadDocument.submittedAt
-    };
-
-    console.log('Returning response:', response);
-    return NextResponse.json(response);
-
   } catch (error) {
-    console.error('Enhanced lead submission error:', error);
-    
+    console.error('Form submission error:', error);
     return NextResponse.json({
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error occurred',
+      error: error instanceof Error ? error.message : 'Unknown error',
       timestamp: new Date().toISOString()
     }, { status: 500 });
   }
