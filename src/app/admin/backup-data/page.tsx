@@ -70,7 +70,7 @@ export default function BackupDataPage() {
           <h1 className="text-3xl font-bold text-gray-900 mb-4">💾 Backup Data Management</h1>
           <p className="text-gray-600 mb-6">
             This page shows all form submissions that have been saved to backup storage. 
-            Data is automatically saved to the server's file system to prevent any loss.
+            Data is automatically saved to the server&apos;s file system to prevent any loss.
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -133,7 +133,7 @@ export default function BackupDataPage() {
             
             <div className="flex items-center space-x-3">
               <div className="w-4 h-4 bg-green-500 rounded-full"></div>
-              <span className="text-green-700 font-medium">Backup files are created in the server's file system</span>
+              <span className="text-green-700 font-medium">Backup files are created in the server&apos;s file system</span>
             </div>
             
             <div className="flex items-center space-x-3">
@@ -193,7 +193,7 @@ export default function BackupDataPage() {
                 This means either no forms have been submitted yet, or the backup files are being managed differently.
               </p>
               <p className="text-sm text-gray-500">
-                Form submissions are automatically saved to the server's file system in the <code className="bg-gray-100 px-2 py-1 rounded">backup-data/</code> directory.
+                Form submissions are automatically saved to the server&apos;s file system in the <code className="bg-gray-100 px-2 py-1 rounded">backup-data/</code> directory.
               </p>
             </div>
           </div>
