@@ -49,15 +49,15 @@ async function lookupXboxPlayer(gamerTag: string): Promise<GamerLookupResponse> 
   }
 
   try {
-    // Xbox player profile lookup
-    const profileResponse = await fetch(`https://xbl.io/api/v2/player/${encodeURIComponent(gamerTag)}`, {
+    // Xbox player profile lookup using correct OpenXBL endpoint
+    const searchResponse = await fetch(`https://xbl.io/api/v2/search/${encodeURIComponent(gamerTag)}`, {
       headers: {
         'X-Authorization': apiKey,
         'Accept': 'application/json'
       }
     });
 
-    if (!profileResponse.ok) {
+    if (!searchResponse.ok) {
       return {
         platform: 'xbox',
         player: {
@@ -71,19 +71,54 @@ async function lookupXboxPlayer(gamerTag: string): Promise<GamerLookupResponse> 
       };
     }
 
-    const profileData = await profileResponse.json();
+    const searchData = await searchResponse.json();
+    
+    // If we found the user, get their detailed profile
+    if (searchData.length > 0) {
+      const user = searchData[0];
+      const xuid = user.xuid || user.id;
+      
+      // Get detailed profile using the account endpoint
+      const profileResponse = await fetch(`https://xbl.io/api/v2/account/${xuid}`, {
+        headers: {
+          'X-Authorization': apiKey,
+          'Accept': 'application/json'
+        }
+      });
 
-    // Xbox games lookup
-    const gamesResponse = await fetch(`https://xbl.io/api/v2/player/${encodeURIComponent(gamerTag)}/games`, {
-      headers: {
-        'X-Authorization': apiKey,
-        'Accept': 'application/json'
+      let profileData = {};
+      if (profileResponse.ok) {
+        profileData = await profileResponse.json();
       }
-    });
 
-    let gamesData = [];
-    if (gamesResponse.ok) {
-      gamesData = await gamesResponse.json();
+      // Extract data from the people array structure
+      const people = profileData.people?.[0];
+      
+      return {
+        platform: 'xbox',
+        player: {
+          gamerTag: people?.gamertag || user.gamertag || gamerTag,
+          gamerscore: parseInt(people?.gamerScore) || 0,
+          profilePicture: people?.displayPicRaw
+        },
+        totalHours: 0, // Xbox doesn't provide total hours
+        totalGames: 0,
+        qualificationStatus: 'qualified',
+        qualificationReason: 'Xbox user found and verified',
+        topGames: []
+      };
+    } else {
+      return {
+        platform: 'xbox',
+        player: {
+          gamerTag: gamerTag
+        },
+        totalHours: 0,
+        totalGames: 0,
+        qualificationStatus: 'not_qualified',
+        qualificationReason: 'Xbox user not found',
+        topGames: []
+      };
     }
 
     return {

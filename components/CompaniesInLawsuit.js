@@ -35,9 +35,7 @@ export default function CompaniesInLawsuit() {
         </p>
 
         <a
-          href="https://forms.gle/3hw5kLVQQogx5xXw7"
-          target="_blank"
-          rel="noopener noreferrer"
+          href="/ats-form?agent=AHRPE5559"
           className="bg-red-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-red-700 transition"
         >
           🚨 Start Your Free Case Review

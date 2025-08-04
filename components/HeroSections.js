@@ -71,7 +71,7 @@ function HeroSectionContent() {
 
           {/* 💰 Bigger Comp Message */}
           <p className="text-xl text-green-700 font-semibold mb-2">
-            You may qualify for up to <strong className="text-2xl">$100,000+</strong> in compensation.
+            You may qualify for up to <strong className="text-2xl">$500,000</strong> in compensation.
           </p>
 
           <em className="text-sm text-gray-500 block mb-6">

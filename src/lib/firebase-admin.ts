@@ -1,13 +1,13 @@
 // Firebase Admin SDK Configuration (Server-side only)
-import { initializeApp, getApps, cert } from 'firebase-admin/app';
+import { initializeApp, getApps, cert, applicationDefault } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
 
 if (!getApps().length) {
   try {
-    // Check if we have service account credentials (production)
+    // Check if we have service account credentials (legacy fallback)
     if (process.env.FIREBASE_ADMIN_PRIVATE_KEY && process.env.FIREBASE_ADMIN_CLIENT_EMAIL) {
-      // Use service account credentials for production
+      // Use service account credentials for legacy setups
       initializeApp({
         credential: cert({
           projectId: process.env.FIREBASE_ADMIN_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
@@ -16,17 +16,28 @@ if (!getApps().length) {
         }),
       });
     } else {
-      // Fallback for development or when credentials aren't set
+      // Use Application Default Credentials (ADC) - preferred approach
+      // This will automatically use gcloud auth application-default login credentials
       initializeApp({
+        credential: applicationDefault(),
         projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
       });
     }
   } catch (error) {
     console.error('Firebase Admin initialization error:', error);
-    // Fallback initialization
-    initializeApp({
-      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-    });
+    // Final fallback - try with just project ID and ADC
+    try {
+      initializeApp({
+        credential: applicationDefault(),
+        projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+      });
+    } catch (fallbackError) {
+      console.error('Firebase Admin fallback initialization error:', fallbackError);
+      // Last resort - initialize without credential (will use ADC)
+      initializeApp({
+        projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+      });
+    }
   }
 }
 

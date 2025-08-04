@@ -1,113 +1,132 @@
-# 🔥 Firebase Console Setup - Step by Step
+# Firebase Setup with Application Default Credentials (ADC)
 
-## 🎯 **Goal: Enable Firestore Database and Get Config**
+## Problem
+Your application is getting the error: "Unable to detect a Project Id in the current environment" because the Firebase Admin SDK isn't properly configured with Application Default Credentials.
 
-### **Step 1: Access Firebase Console**
-- ✅ Firebase Console should now be open in your browser
-- If not, go to: https://console.firebase.google.com/
+## Solution
+We've updated your Firebase Admin SDK configuration to use Application Default Credentials (ADC) instead of service account keys. This is the preferred approach for Google Cloud Workload Identity Federation.
 
-### **Step 2: Select Project**
-1. Look for project dropdown (top left)
-2. Select: **`gaming-funnel`**
-3. If you don't see it, click "Add project" and select existing project
+## Setup Steps
 
-### **Step 3: Enable Firestore Database**
-1. In the left sidebar, click **"Firestore Database"**
-2. Click **"Create database"** button
-3. Choose **"Start in test mode"** (we can add security rules later)
-4. Select region: **`us-central1`** (recommended)
-5. Click **"Enable"**
+### 1. Install Google Cloud CLI (if not already installed)
+```bash
+# macOS
+brew install google-cloud-sdk
 
-### **Step 4: Get Firebase Config**
-1. Click the **gear icon** (⚙️) next to "Project Overview" in left sidebar
-2. Click **"Project settings"**
-3. Scroll down to **"Your apps"** section
-4. Click **"Add app"** button
-5. Choose **"Web"** (</> icon)
-6. Give it a nickname: **"torc-landing"**
-7. Click **"Register app"**
-8. **Copy the config values** - you'll see something like:
-
-```javascript
-const firebaseConfig = {
-  apiKey: "AIzaSyC...",
-  authDomain: "gaming-funnel.firebaseapp.com",
-  projectId: "gaming-funnel",
-  storageBucket: "gaming-funnel.appspot.com",
-  messagingSenderId: "123456789",
-  appId: "1:123456789:web:abcdef"
-};
+# Or download from: https://cloud.google.com/sdk/docs/install
 ```
 
-### **Step 5: Update Environment Variables**
-1. Copy the values from the config above
-2. Update your `.env.local` file:
+### 2. Authenticate with Google Cloud
+```bash
+# Login to your Google Cloud account
+gcloud auth login
+
+# Set up Application Default Credentials
+gcloud auth application-default login
+```
+
+### 3. Set your project ID
+```bash
+# Replace 'your-project-id' with your actual Firebase project ID
+gcloud config set project your-project-id
+```
+
+### 4. Verify your environment variables
+Make sure your `.env.local` file has the correct Firebase project ID:
+
+```env
+# FIREBASE CLIENT (Required for frontend)
+NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key_here
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=123456789
+NEXT_PUBLIC_FIREBASE_APP_ID=1:123456789:web:abcdef
+```
+
+### 5. Test the connection
+After setting up ADC, test your Firebase connection:
 
 ```bash
-# Replace these with your actual values from Firebase Console
-NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSyC... (your actual apiKey)
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=gaming-funnel.firebaseapp.com
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=gaming-funnel
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=gaming-funnel.appspot.com
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=123456789 (your actual senderId)
-NEXT_PUBLIC_FIREBASE_APP_ID=1:123456789:web:abcdef (your actual appId)
+# Test the API endpoint
+curl http://localhost:3000/api/test-firebase
 ```
 
-### **Step 6: Test the Setup**
-1. Save the `.env.local` file
-2. The dev server should automatically reload
-3. Visit: http://localhost:3001
-4. Click "Start Gaming Addiction Assessment"
-5. Fill out the form and submit
-6. Check Firebase Console → Firestore Database to see the data
+## What Changed
 
----
+### Before (Service Account Keys)
+- Required service account JSON file
+- Manual credential management
+- Security risks with key storage
 
-## 🧪 **Testing Checklist**
+### After (Application Default Credentials)
+- Automatic credential detection
+- Uses `gcloud auth application-default login`
+- More secure and easier to manage
+- Works with Google Cloud Workload Identity Federation
 
-### **✅ What Should Work After Setup:**
-- [ ] Form submission saves to Firestore
-- [ ] Admin dashboard shows real-time data
-- [ ] No console errors in browser
-- [ ] Data appears in Firebase Console
+## Code Changes Made
 
-### **❌ Common Issues:**
-- **"Firebase not initialized"** → Check API key in .env.local
-- **"Permission denied"** → Firestore not in test mode
-- **"Project not found"** → Wrong project ID
+1. **Updated Firebase Admin SDK initialization** in all API routes:
+   - Added `applicationDefault()` import
+   - Uses ADC as the primary authentication method
+   - Falls back to service account keys only if needed
+   - Better error handling and fallback strategies
 
----
+2. **Files updated**:
+   - `src/lib/firebase-admin.ts`
+   - `src/lib/firebase-admin-new.ts`
+   - `src/app/api/submit-enhanced-lead/route.ts`
+   - `src/app/api/submit-form/route.ts`
+   - `src/app/api/admin/stats/route.ts`
+   - `src/app/api/admin/agents/route.ts`
+   - `src/app/api/admin/leads/route.ts`
 
-## 🚀 **Next Steps After Firebase Setup**
+## Troubleshooting
 
-### **1. Test Locally**
-```bash
-# The dev server should already be running
-# Visit http://localhost:3001 and test the form
-```
+### If you still get authentication errors:
 
-### **2. Deploy to Production**
-```bash
-./deploy.sh
-```
+1. **Check if ADC is set up correctly**:
+   ```bash
+   gcloud auth application-default print-access-token
+   ```
 
-### **3. Set Production Environment Variables**
-```bash
-gcloud run services update torc-landing \
-  --region us-central1 \
-  --update-env-vars="NEXT_PUBLIC_FIREBASE_API_KEY=your_key,NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=gaming-funnel.firebaseapp.com"
-```
+2. **Verify your project ID**:
+   ```bash
+   gcloud config get-value project
+   ```
 
----
+3. **Check environment variables**:
+   ```bash
+   echo $NEXT_PUBLIC_FIREBASE_PROJECT_ID
+   ```
 
-## 📊 **What You'll Have After Setup**
+4. **Test with a simple API call**:
+   ```bash
+   curl http://localhost:3000/api/test-firebase-simple
+   ```
 
-✅ **Real-time Form Submissions** - Data saves to Firestore instantly  
-✅ **Admin Dashboard** - View all leads in real-time  
-✅ **Agent Tracking** - Every lead tied to specific agent  
-✅ **Gaming Profile Analysis** - Real API data integration  
-✅ **Commission System** - Ready for payment processing  
+### For Production Deployment
 
----
+If deploying to Vercel or other platforms:
 
-**Status**: Ready for Firebase Console configuration! 🔥 
+1. **Set environment variables** in your deployment platform
+2. **Use service account keys** for production (the code will fall back to this)
+3. **Or set up Workload Identity Federation** for more secure authentication
+
+## Benefits of This Approach
+
+- ✅ **More secure**: No need to store service account keys
+- ✅ **Easier management**: Automatic credential rotation
+- ✅ **Better for development**: Uses local gcloud credentials
+- ✅ **Production ready**: Works with Google Cloud Workload Identity Federation
+- ✅ **Backward compatible**: Still supports service account keys if needed
+
+## Next Steps
+
+1. Run `gcloud auth application-default login`
+2. Set your project ID: `gcloud config set project your-project-id`
+3. Restart your development server
+4. Test the form submission again
+
+The authentication errors should now be resolved! 

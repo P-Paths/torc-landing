@@ -43,13 +43,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Production: Save to Firestore
-    const { initializeApp, getApps, cert } = await import('firebase-admin/app');
+    const { initializeApp, getApps, cert, applicationDefault } = await import('firebase-admin/app');
     const { getFirestore } = await import('firebase-admin/firestore');
     
     // Initialize Firebase Admin if not already initialized
     if (!getApps().length) {
       try {
         if (process.env.FIREBASE_ADMIN_PRIVATE_KEY && process.env.FIREBASE_ADMIN_CLIENT_EMAIL) {
+          // Use service account credentials for legacy setups
           initializeApp({
             credential: cert({
               projectId: process.env.FIREBASE_ADMIN_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
@@ -58,15 +59,27 @@ export async function POST(request: NextRequest) {
             }),
           });
         } else {
+          // Use Application Default Credentials (ADC) - preferred approach
           initializeApp({
+            credential: applicationDefault(),
             projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
           });
         }
       } catch (error) {
         console.error('Firebase Admin initialization error:', error);
-        initializeApp({
-          projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-        });
+        // Final fallback - try with just project ID and ADC
+        try {
+          initializeApp({
+            credential: applicationDefault(),
+            projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+          });
+        } catch (fallbackError) {
+          console.error('Firebase Admin fallback initialization error:', fallbackError);
+          // Last resort - initialize without credential (will use ADC)
+          initializeApp({
+            projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+          });
+        }
       }
     }
     

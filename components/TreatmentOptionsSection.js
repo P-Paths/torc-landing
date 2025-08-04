@@ -57,23 +57,51 @@ export default function TreatmentOptionsSection() {
           Gaming addiction claims and lawsuits are not as common as other types of cases, so it is crucial to hire a lawyer with relevant experience when filing a gaming addiction claim.
         </p>
 
-        {/* 🌟 Placeholder for ZIP-based treatment lookup */}
-        <div className="border border-dashed border-gray-300 p-4 mt-6 rounded text-sm text-gray-500">
-          🔍 <em>Coming soon:</em> Search for treatment centers by ZIP code
+        {/* 🔍 Treatment Center Search */}
+        <div className="bg-gray-50 p-6 rounded-lg border">
+          <h4 className="text-lg font-semibold mb-4 text-blue-600">
+            🔍 Search Treatment Centers Near You
+          </h4>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <input
+              type="text"
+              placeholder="Enter ZIP code"
+              className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+            <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold transition">
+              Search
+            </button>
+          </div>
+          <p className="text-sm text-gray-600 mt-2">
+            Find local treatment centers, therapists, and support groups for gaming addiction
+          </p>
         </div>
 
-        {/* 👥 Replace with actual link to Calendly or Zoom */}
-        <div className="text-center mt-10">
-          <p className="mb-2 text-gray-700">
-            Need help walking through the form?
+        {/* 👥 Zoom Meetings Section */}
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg border border-blue-200">
+          <h4 className="text-lg font-semibold mb-4 text-blue-600">
+            💻 Free Zoom Counseling Sessions
+          </h4>
+          <p className="text-gray-700 mb-4">
+            Get personalized help with gaming addiction recovery. Our certified counselors are available for free consultations.
           </p>
-          <button
-            type="button"
-            onClick={() => setShowModal(true)}
-            className="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded shadow"
-          >
-            Join Our Zoom Q&A →
-          </button>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <button
+              type="button"
+              onClick={() => setShowModal(true)}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition"
+            >
+              📅 Schedule Free Session
+            </button>
+            <a
+              href="https://us05web.zoom.us/j/84929271614?pwd=syfYiXRS2IRjYBsljwipAziDhc0EbF.1"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition text-center"
+            >
+              🚀 Join Live Session
+            </a>
+          </div>
         </div>
       </div>
       {/* Modal */}
