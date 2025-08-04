@@ -1,20 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { initializeApp } from 'firebase/app';
-import { getFirestore, addDoc, collection } from 'firebase/firestore';
-
-// Initialize Firebase for server-side
-const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
 
 export async function POST(request: NextRequest) {
   try {
@@ -86,20 +70,69 @@ export async function POST(request: NextRequest) {
       phone: leadDocument.phone
     });
 
-    // Save to Firestore using client-side SDK
+    // Try to save to Firestore using a simple HTTP request
     try {
-      const docRef = await addDoc(collection(db, 'leads'), leadDocument);
-      console.log('✅ Lead saved to Firestore with ID:', docRef.id);
+      const firebaseUrl = `https://firestore.googleapis.com/v1/projects/gaming-funnel-1fdf3/databases/(default)/documents/leads`;
       
-      return NextResponse.json({
-        success: true,
-        message: 'Form submitted successfully! Data saved to database.',
-        documentId: docRef.id,
-        leadId: docRef.id,
-        timestamp: new Date().toISOString()
+      const firebaseResponse = await fetch(firebaseUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fields: {
+            agentId: { stringValue: leadDocument.agentId },
+            submittedAt: { stringValue: leadDocument.submittedAt },
+            timestamp: { stringValue: leadDocument.timestamp },
+            agentName: { stringValue: leadDocument.agentName },
+            relationship: { stringValue: leadDocument.relationship },
+            gamerFirstName: { stringValue: leadDocument.gamerFirstName },
+            gamerLastName: { stringValue: leadDocument.gamerLastName },
+            email: { stringValue: leadDocument.email },
+            phone: { stringValue: leadDocument.phone },
+            bestTimeToCall: { stringValue: leadDocument.bestTimeToCall },
+            status: { stringValue: leadDocument.status },
+            formVersion: { stringValue: leadDocument.formVersion },
+            submissionSource: { stringValue: leadDocument.submissionSource },
+            hasEmergencyIndicators: { booleanValue: leadDocument.hasEmergencyIndicators },
+            totalSymptoms: { integerValue: leadDocument.totalSymptoms },
+            affectedAreasCount: { integerValue: leadDocument.affectedAreasCount }
+          }
+        })
       });
+
+      if (firebaseResponse.ok) {
+        const firebaseData = await firebaseResponse.json();
+        console.log('✅ Lead saved to Firestore:', firebaseData);
+        
+        return NextResponse.json({
+          success: true,
+          message: 'Form submitted successfully! Data saved to database.',
+          documentId: firebaseData.name?.split('/').pop(),
+          leadId: firebaseData.name?.split('/').pop(),
+          timestamp: new Date().toISOString()
+        });
+      } else {
+        const errorText = await firebaseResponse.text();
+        console.log('❌ Firebase save failed:', firebaseResponse.status, errorText);
+        console.log('Full Lead Document:', JSON.stringify(leadDocument, null, 2));
+        
+        return NextResponse.json({
+          success: true,
+          message: 'Form submitted successfully! Data logged for processing.',
+          leadId: `temp-${Date.now()}`,
+          timestamp: new Date().toISOString(),
+          debug: {
+            agentId: agentId,
+            firstName: leadDocument.gamerFirstName,
+            lastName: leadDocument.gamerLastName,
+            email: leadDocument.email,
+            firebaseError: errorText
+          }
+        });
+      }
     } catch (firebaseError) {
-      console.log('❌ Firebase save failed:', firebaseError);
+      console.log('❌ Firebase error:', firebaseError);
       console.log('Full Lead Document:', JSON.stringify(leadDocument, null, 2));
       
       return NextResponse.json({
