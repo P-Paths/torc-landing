@@ -83,7 +83,7 @@ const EnhancedIntakeForm: React.FC = () => {
       // Get agent ID from URL params or use default
       const agentId = new URLSearchParams(window.location.search).get('agent') || 'AHRPE5559';
       
-      const response = await fetch(`/api/submit-enhanced-lead?agent=${agentId}`, {
+      const response = await fetch(`/api/test-simple?agent=${agentId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
