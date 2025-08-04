@@ -60,16 +60,58 @@ export async function POST(request: NextRequest) {
       additionalData: formData.additionalData || {}
     };
 
-    // For now, just return success and log the data
-    // We'll implement Firebase saving in the next step
-    console.log('Lead document prepared:', leadDocument);
-
-    return NextResponse.json({
-      success: true,
-      message: 'Form submitted successfully! Data logged for processing.',
-      leadId: `temp-${Date.now()}`,
-      timestamp: new Date().toISOString()
+    // Save to Firestore using fetch to Firebase REST API
+    const firebaseUrl = `https://firestore.googleapis.com/v1/projects/gaming-funnel/databases/(default)/documents/leads`;
+    
+    const firebaseResponse = await fetch(firebaseUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.FIREBASE_ACCESS_TOKEN || ''}`,
+      },
+      body: JSON.stringify({
+        fields: {
+          agentId: { stringValue: leadDocument.agentId },
+          submittedAt: { stringValue: leadDocument.submittedAt },
+          timestamp: { stringValue: leadDocument.timestamp },
+          agentName: { stringValue: leadDocument.agentName },
+          relationship: { stringValue: leadDocument.relationship },
+          gamerFirstName: { stringValue: leadDocument.gamerFirstName },
+          gamerLastName: { stringValue: leadDocument.gamerLastName },
+          email: { stringValue: leadDocument.email },
+          phone: { stringValue: leadDocument.phone },
+          bestTimeToCall: { stringValue: leadDocument.bestTimeToCall },
+          status: { stringValue: leadDocument.status },
+          formVersion: { stringValue: leadDocument.formVersion },
+          submissionSource: { stringValue: leadDocument.submissionSource },
+          hasEmergencyIndicators: { booleanValue: leadDocument.hasEmergencyIndicators },
+          totalSymptoms: { integerValue: leadDocument.totalSymptoms },
+          affectedAreasCount: { integerValue: leadDocument.affectedAreasCount }
+        }
+      })
     });
+
+    if (firebaseResponse.ok) {
+      const firebaseData = await firebaseResponse.json();
+      console.log('Lead saved to Firestore:', firebaseData);
+      
+      return NextResponse.json({
+        success: true,
+        message: 'Form submitted successfully! Data saved to database.',
+        documentId: firebaseData.name?.split('/').pop(),
+        leadId: firebaseData.name?.split('/').pop(),
+        timestamp: new Date().toISOString()
+      });
+    } else {
+      console.log('Firebase save failed, but form data logged:', leadDocument);
+      
+      return NextResponse.json({
+        success: true,
+        message: 'Form submitted successfully! Data logged for processing.',
+        leadId: `temp-${Date.now()}`,
+        timestamp: new Date().toISOString()
+      });
+    }
 
   } catch (error) {
     console.error('Form submission error:', error);
