@@ -1,6 +1,6 @@
 'use client';
 // src/app/page.js
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import HeroSections from '../../components/HeroSections';
 import QualificationsSection from '../../components/QualificationsSection';
 import TreatmentOptionsSection from '../../components/TreatmentOptionsSection';
@@ -36,10 +36,16 @@ export default function Home() {
 
 
       {/* Rest of the page content */}
-      <HeroSections />
-      <QualificationsSection />
+      <Suspense fallback={<div>Loading...</div>}>
+        <HeroSections />
+      </Suspense>
+      <Suspense fallback={<div>Loading...</div>}>
+        <QualificationsSection />
+      </Suspense>
       <TreatmentOptionsSection />
-      <Testimonials />
+      <Suspense fallback={<div>Loading...</div>}>
+        <Testimonials />
+      </Suspense>
       <Footer />
     </main>
   );
