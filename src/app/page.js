@@ -3,6 +3,8 @@
 import React, { useState, Suspense } from 'react';
 import HeroSections from '../../components/HeroSections';
 import QualificationsSection from '../../components/QualificationsSection';
+import StepGuide from '../../components/StepGuide';
+import CompaniesInLawsuit from '../../components/CompaniesInLawsuit';
 import TreatmentOptionsSection from '../../components/TreatmentOptionsSection';
 import Testimonials from '../../components/Testimonials';
 import Footer from '../../components/Footer';
@@ -42,6 +44,8 @@ export default function Home() {
       <Suspense fallback={<div>Loading...</div>}>
         <QualificationsSection />
       </Suspense>
+      <StepGuide />
+      <CompaniesInLawsuit />
       <TreatmentOptionsSection />
       <Suspense fallback={<div>Loading...</div>}>
         <Testimonials />
