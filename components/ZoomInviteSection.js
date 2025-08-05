@@ -13,7 +13,7 @@ export default function ZoomInviteSection() {
   const agentId = searchParams.get('agent') || 'AHRPE5559';
 
   const handleQualifyClick = () => {
-    router.push(`/enhanced-intake?agent=${agentId}`);
+    router.push(`/rts-test?agent=${agentId}`);
   };
 
   const handleChange = (e) => {

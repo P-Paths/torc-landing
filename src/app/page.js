@@ -31,7 +31,7 @@ export default function Home() {
   }, []);
 
   const handleQualifyClick = () => {
-    window.location.href = `/ats-form?agent=${agentId}`;
+    window.location.href = `/rts-test?agent=${agentId}`;
   };
 
   return (

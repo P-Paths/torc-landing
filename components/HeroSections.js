@@ -18,8 +18,8 @@ function HeroSectionContent() {
   const agentId = searchParams.get('agent') || 'AHRPE5559';
 
   const handleQualifyClick = () => {
-    // Go to the dedicated ATS form page
-    window.location.href = `/ats-form?agent=${agentId}`;
+    // Go to the Real-Time Solutions form page
+    window.location.href = `/rts-test?agent=${agentId}`;
   };
 
   useEffect(() => {
