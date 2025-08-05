@@ -83,7 +83,7 @@ const VGAWhiteBackgroundForm: React.FC = () => {
     
     // Get opt-in data from localStorage if available
     const optInData = localStorage.getItem('torcFormData');
-    let prefillData = {};
+    let prefillData: any = {};
     
     if (optInData) {
       try {
