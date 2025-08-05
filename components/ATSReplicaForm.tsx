@@ -157,18 +157,29 @@ const ATSReplicaForm: React.FC = () => {
       <div className="min-h-screen bg-gradient-to-br from-blue-900 to-purple-900 flex items-center justify-center p-4">
         <div className="bg-white rounded-lg shadow-2xl p-8 max-w-md w-full text-center">
           <div className="text-green-500 text-6xl mb-4">✅</div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Claim Submitted Successfully!</h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Thank you for signing up!</h2>
           <p className="text-gray-600 mb-6">
-            Thank you for submitting your video game addiction claim. You will be contacted within 24-48 hours.
+            You'll be receiving a detailed form from us within 24 hours if we think you qualify.
           </p>
-          <div className="bg-blue-50 p-4 rounded-lg">
+          <div className="bg-blue-50 p-4 rounded-lg mb-6">
             <p className="text-sm text-blue-800">
               <strong>What happens next:</strong><br/>
               • Your case will be reviewed<br/>
-              • You&apos;ll be contacted within 24-48 hours<br/>
+              • You'll receive a detailed form within 24 hours<br/>
               • Free case evaluation provided
             </p>
           </div>
+          <button
+            onClick={() => {
+              // Store ATS data for RTS form
+              localStorage.setItem('atsFormData', JSON.stringify(formData));
+              // Redirect to RTS form
+              window.location.href = '/rts-test?agent=AHRPE5559';
+            }}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition"
+          >
+            Continue to Detailed Form
+          </button>
         </div>
       </div>
     );
