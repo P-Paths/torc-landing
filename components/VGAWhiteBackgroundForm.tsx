@@ -74,11 +74,45 @@ const VGAWhiteBackgroundForm: React.FC = () => {
     gameDetails: ''
   });
 
-  // Auto-fill agent ID on component mount
+  // Auto-fill agent ID and handle token on component mount
   useEffect(() => {
+    // Get token and email from URL params
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    const email = urlParams.get('email');
+    
+    // Get opt-in data from localStorage if available
+    const optInData = localStorage.getItem('torcFormData');
+    let prefillData = {};
+    
+    if (optInData) {
+      try {
+        prefillData = JSON.parse(optInData);
+      } catch (e) {
+        console.error('Error parsing opt-in data:', e);
+      }
+    }
+    
     setFormData(prev => ({
       ...prev,
-      agentId: 'AGENT-' + Math.random().toString(36).substr(2, 9).toUpperCase()
+      agentId: 'AGENT-' + Math.random().toString(36).substr(2, 9).toUpperCase(),
+      // Pre-fill with opt-in data if available
+      ...(prefillData.firstName && { injuredPartyName: `${prefillData.firstName} ${prefillData.lastName}` }),
+      ...(prefillData.email && { callerPhone: prefillData.email }), // Using email as phone for now
+      ...(prefillData.address1 && { injuredPartyAddress: `${prefillData.address1}, ${prefillData.city}, ${prefillData.state} ${prefillData.zip}` }),
+      ...(prefillData.dob && { injuredPartyDateOfBirth: prefillData.dob }),
+      ...(prefillData.ssn && { injuredPartySSN: prefillData.ssn }),
+      ...(prefillData.gender && { injuredPartyGender: prefillData.gender }),
+      ...(prefillData.relation && { relationshipWithIndividual: prefillData.relation === 'Myself' ? 'myself' : 'loved_one' }),
+      ...(prefillData.isMinor && { isPersonMinor: prefillData.isMinor }),
+      ...(prefillData.education && { highestEducationLevel: prefillData.education }),
+      ...(prefillData.startDate && { firstStartedPlayingDate: prefillData.startDate }),
+      ...(prefillData.avgHours && { averageGamesPerDay: prefillData.avgHours }),
+      ...(prefillData.firstGame && { firstVideoGame: prefillData.firstGame }),
+      ...(prefillData.gameHistory && { gameDetails: prefillData.gameHistory }),
+      // Convert platforms and games arrays
+      ...(prefillData.platforms && { gamingPlatforms: prefillData.platforms }),
+      ...(prefillData.games && { videoGames: prefillData.games }),
     }));
   }, []);
 

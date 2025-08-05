@@ -237,10 +237,33 @@ const OptInForm: React.FC = () => {
         // Store form data in localStorage for potential use
         localStorage.setItem('torcFormData', JSON.stringify(formData));
         
-        // Optionally send to API here
-        setTimeout(() => {
-          window.location.href = REDIRECT_URL;
-        }, 1200);
+        // Submit to our API endpoint
+        const response = await fetch('/api/submit-optin', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData),
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          // Store the VGA form URL for testing
+          if (result.vgaFormUrl) {
+            localStorage.setItem('vgaFormUrl', result.vgaFormUrl);
+          }
+          
+          // Show success message
+          setTimeout(() => {
+            // For testing, show the VGA form URL
+            if (result.vgaFormUrl) {
+              alert(`VGA Form URL: ${result.vgaFormUrl}`);
+            }
+          }, 1000);
+        } else {
+          throw new Error(result.message);
+        }
         
       } catch (error) {
         console.error('Error processing form:', error);
