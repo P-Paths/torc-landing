@@ -972,9 +972,11 @@ const OptInForm: React.FC = () => {
               <textarea name="notes" value={formData.notes} onChange={handleChange} className="w-full p-2 border rounded" rows={4} />
             </div>
             {/* Consent */}
-            <div className="flex items-center">
-              <input type="checkbox" name="consent" checked={formData.consent} onChange={handleChange} className="mr-2" />
-              <label className="font-semibold">I confirm the above information is accurate.<span className="text-red-500">*</span></label>
+            <div className="flex items-start space-x-2">
+              <input type="checkbox" name="consent" checked={formData.consent} onChange={handleChange} className="mt-1" />
+              <label className="text-sm">
+                By clicking the "Submit" button below, I am asking to be contacted about my potential claim and to assist with obtaining a lawyer. Those responding to this ad expressly request and give permission to being contacted by Real Time Solutions, ATSlawsuits, a law firm, its representatives or associated co-counsel, working in this area of practice related to this inquiry and/or their services, at any time in any way, including but not limited to calls using an auto-dialer, text, fax, or email, even if these result in charges by your carrier. This request and permission override any do-not-call registry rules or list, or any other applicable law or regulation. Those responding to this ad confirm they have carefully read and consent to the Terms of Use and Privacy Policy contained in any links, website or publication by the law firm and/or its representatives, marketing or otherwise. I understand that submitting this information does not create an attorney-client relationship.<span className="text-red-500">*</span>
+              </label>
             </div>
             {errors.consent && <span className="text-red-500 text-sm">{errors.consent}</span>}
             <button type="submit" className="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded hover:bg-blue-700">Submit</button>
