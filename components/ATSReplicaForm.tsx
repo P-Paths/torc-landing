@@ -692,7 +692,7 @@ const ATSReplicaForm: React.FC = () => {
                     required
                   />
                   <span className="text-sm text-gray-700">
-                    I consent to be contacted about my claim. *
+                    By clicking the "Submit" button below, I am asking to be contacted about my potential claim and to assist with obtaining a lawyer. Those responding to this ad expressly request and give permission to being contacted by Real Time Solutions, ATSlawsuits, a law firm, its representatives or associated co-counsel, working in this area of practice related to this inquiry and/or their services, at any time in any way, including but not limited to calls using an auto-dialer, text, fax, or email, even if these result in charges by your carrier. This request and permission override any do-not-call registry rules or list, or any other applicable law or regulation. Those responding to this ad confirm they have carefully read and consent to the Terms of Use and Privacy Policy contained in any links, website or publication by the law firm and/or its representatives, marketing or otherwise. I understand that submitting this information does not create an attorney-client relationship. *
                   </span>
                 </label>
               </div>
