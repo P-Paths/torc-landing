@@ -32,50 +32,42 @@ export default function AdminSidebar({ agentId, onLogout, isOpen, onToggle, them
     {
       name: 'Dashboard',
       href: '/admin',
-      icon: 'DASH',
-      description: 'Overview and stats'
+      icon: '📊'
     },
     {
       name: 'Leads',
       href: '/admin/leads',
-      icon: 'LEADS',
-      description: 'Manage leads'
+      icon: '👥'
     },
     {
       name: 'Agents',
       href: '/admin/agents',
-      icon: 'AGENTS',
-      description: 'Agent management'
+      icon: '👨‍💼'
     },
     {
       name: 'Meetings',
       href: '/admin/meetings',
-      icon: 'MEET',
-      description: 'Meeting tracker'
+      icon: '📅'
     },
     {
       name: 'QR Codes',
       href: '/admin/qr-codes',
-      icon: 'QR',
-      description: 'QR code generation'
+      icon: '📱'
     },
     {
       name: 'Gaming Lookup',
       href: '/admin/gaming-lookup',
-      icon: 'GAME',
-      description: 'Gamertag verification'
+      icon: '🎮'
     },
     {
       name: 'Reports',
       href: '/admin/reports',
-      icon: 'REPORTS',
-      description: 'Analytics & reports'
+      icon: '📈'
     },
     {
       name: 'Settings',
       href: '/admin/settings',
-      icon: 'SETTINGS',
-      description: 'System settings'
+      icon: '⚙️'
     }
   ];
 
@@ -282,19 +274,10 @@ export default function AdminSidebar({ agentId, onLogout, isOpen, onToggle, them
                 }`}
                 title={isOpen ? undefined : item.name}
               >
-                <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                  {item.icon}
-                </span>
+                <span className="text-xl">{item.icon}</span>
                 {isOpen && (
                   <div className="flex-1">
                     <p className="font-medium">{item.name}</p>
-                    <p className={`text-xs ${
-                      isActive(item.href)
-                        ? theme === 'dark' ? 'text-blue-400' : 'text-blue-600'
-                        : theme === 'dark' ? 'text-gray-400 group-hover:text-gray-300' : 'text-gray-500 group-hover:text-gray-600'
-                    }`}>
-                      {item.description}
-                    </p>
                   </div>
                 )}
               </button>
@@ -315,9 +298,7 @@ export default function AdminSidebar({ agentId, onLogout, isOpen, onToggle, them
                     : 'text-gray-700 hover:bg-gray-50'
                 }`}
               >
-                <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                  {theme === 'dark' ? 'LIGHT' : 'DARK'}
-                </span>
+                <span className="text-xl">{theme === 'dark' ? '☀️' : '🌙'}</span>
                 <span className="font-medium">
                   {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
                 </span>
@@ -336,9 +317,7 @@ export default function AdminSidebar({ agentId, onLogout, isOpen, onToggle, them
               }`}
               title={isOpen ? undefined : "Logout"}
             >
-              <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                EXIT
-              </span>
+              <span className="text-xl">🚪</span>
               {isOpen && <span className="font-medium">Logout</span>}
             </button>
           </div>

@@ -21,6 +21,12 @@ export default function AdminLayout({ children, agentId, onLogout }: AdminLayout
     const newTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(newTheme);
     localStorage.setItem('admin-theme', newTheme);
+    // Prevent flickering by applying theme immediately
+    if (newTheme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
   };
 
   // Load theme from localStorage on component mount
