@@ -48,7 +48,7 @@ export default function LeadsManagementPage() {
     if (confirm('Are you sure you want to delete this lead?')) {
       try {
         // Remove from local state immediately for better UX
-        setLeads(prevLeads => prevLeads.filter(lead => lead.id !== leadId));
+        setLeads(prevLeads => prevLeads.filter((lead: any) => lead.id !== leadId));
         
         // Make API call to delete from database
         const response = await fetch(`/api/admin/leads/${leadId}`, {
@@ -127,7 +127,7 @@ export default function LeadsManagementPage() {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">New Leads</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {leads.filter(lead => lead.status === 'new').length}
+                  {leads.filter((lead: any) => lead.status === 'new').length}
                 </p>
               </div>
             </div>
@@ -141,7 +141,7 @@ export default function LeadsManagementPage() {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Contacted</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {leads.filter(lead => lead.status === 'contacted').length}
+                  {leads.filter((lead: any) => lead.status === 'contacted').length}
                 </p>
               </div>
             </div>
@@ -155,7 +155,7 @@ export default function LeadsManagementPage() {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Qualified</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {leads.filter(lead => lead.status === 'qualified').length}
+                  {leads.filter((lead: any) => lead.status === 'qualified').length}
                 </p>
               </div>
             </div>

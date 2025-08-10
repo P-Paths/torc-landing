@@ -75,7 +75,7 @@ const ATSReplicaForm: React.FC = () => {
       if (checked) {
         return { ...prev, [field]: [...currentArray, value] };
       } else {
-        return { ...prev, [field]: currentArray.filter(item => item !== value) };
+        return { ...prev, [field]: currentArray.filter((item: string) => item !== value) };
       }
     });
   };
@@ -457,7 +457,7 @@ const ATSReplicaForm: React.FC = () => {
                       { value: 'xbox', label: 'Xbox' },
                       { value: 'steam', label: 'Steam' },
                       { value: 'other', label: 'Other (Please specify):' }
-                    ].filter(platform => !formData.platforms.includes(platform.value)).map(platform => (
+                    ].filter((platform: any) => !formData.platforms.includes(platform.value)).map((platform: any) => (
                       <option key={platform.value} value={platform.value}>
                         {platform.label}
                       </option>
@@ -585,7 +585,7 @@ const ATSReplicaForm: React.FC = () => {
                       'Fall Guys',
                       'World of Warcraft',
                       'Hearthstone'
-                    ].filter(game => !formData.games.includes(game)).map(game => (
+                    ].filter((game: string) => !formData.games.includes(game)).map((game: string) => (
                       <option key={game} value={game}>
                         {game}
                       </option>

@@ -208,8 +208,8 @@ export class SupabaseService {
     if (bonusesError) throw bonusesError;
 
     const totalLeads = leads?.length || 0;
-    const validLeads = leads?.filter(lead => lead.status === 'qualified').length || 0;
-    const bonusLeads = bonuses?.filter(bonus => bonus.status === 'approved').length || 0;
+    const validLeads = leads?.filter((lead: any) => lead.status === 'qualified').length || 0;
+    const bonusLeads = bonuses?.filter((bonus: any) => bonus.status === 'approved').length || 0;
     
     const commissionTotal = (validLeads * 40) + (bonusLeads * 10);
 

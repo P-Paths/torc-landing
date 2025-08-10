@@ -244,7 +244,7 @@ export default function AgentManagementPage() {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Active Agents</p>
-                <p className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">{agents.filter(agent => agent.isActive).length}</p>
+                <p className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">{agents.filter((agent: Agent) => agent.isActive).length}</p>
               </div>
             </div>
           </div>
@@ -258,7 +258,7 @@ export default function AgentManagementPage() {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">QR Codes Generated</p>
-                <p className="text-3xl font-bold bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-transparent">{agents.filter(agent => agent.qrCodeUrl).length}</p>
+                <p className="text-3xl font-bold bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-transparent">{agents.filter((agent: Agent) => agent.qrCodeUrl).length}</p>
               </div>
             </div>
           </div>
@@ -273,7 +273,7 @@ export default function AgentManagementPage() {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">New This Month</p>
                 <p className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                  {agents.filter(agent => {
+                  {agents.filter((agent: Agent) => {
                     const createdAt = new Date(agent.createdAt);
                     const now = new Date();
                     return createdAt.getMonth() === now.getMonth() && createdAt.getFullYear() === now.getFullYear();

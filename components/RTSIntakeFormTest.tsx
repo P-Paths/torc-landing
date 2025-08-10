@@ -250,7 +250,7 @@ const RTSIntakeFormTest: React.FC = () => {
       if (checked) {
         return { ...prev, [field]: [...currentArray, value] };
       } else {
-        return { ...prev, [field]: currentArray.filter(item => item !== value) };
+        return { ...prev, [field]: currentArray.filter((item: string) => item !== value) };
       }
     });
   };

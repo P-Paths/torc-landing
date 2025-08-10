@@ -118,19 +118,19 @@ const DashboardPage: React.FC = () => {
           <div className="bg-white rounded-lg shadow p-6">
             <h3 className="text-lg font-semibold text-gray-900">Submitted</h3>
             <p className="text-3xl font-bold text-green-600">
-              {submissions.filter(s => s.status === 'submitted').length}
+                              {submissions.filter((s: any) => s.status === 'submitted').length}
             </p>
           </div>
           <div className="bg-white rounded-lg shadow p-6">
             <h3 className="text-lg font-semibold text-gray-900">Pending</h3>
             <p className="text-3xl font-bold text-yellow-600">
-              {submissions.filter(s => s.status === 'pending').length}
+                              {submissions.filter((s: any) => s.status === 'pending').length}
             </p>
           </div>
           <div className="bg-white rounded-lg shadow p-6">
             <h3 className="text-lg font-semibold text-gray-900">Failed</h3>
             <p className="text-3xl font-bold text-red-600">
-              {submissions.filter(s => s.status === 'failed').length}
+                              {submissions.filter((s: any) => s.status === 'failed').length}
             </p>
           </div>
         </div>

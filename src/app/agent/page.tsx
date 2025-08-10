@@ -63,10 +63,10 @@ export default function AgentDashboard() {
         
         setStats({
           totalLeads: agentLeads.length,
-          recentLeads: agentLeads.filter(lead => new Date(lead.submittedAt) > thirtyDaysAgo).length,
-          qualifiedLeads: agentLeads.filter(lead => lead.status === 'qualified').length,
+          recentLeads: agentLeads.filter((lead: Lead) => new Date(lead.submittedAt) > thirtyDaysAgo).length,
+          qualifiedLeads: agentLeads.filter((lead: Lead) => lead.status === 'qualified').length,
           totalCommission: agentLeads.length * 40, // $40 per lead
-          bonusEligibleLeads: agentLeads.filter(lead => 
+          bonusEligibleLeads: agentLeads.filter((lead: Lead) => 
             lead.platforms?.includes('xbox') && lead.gamertags?.xbox
           ).length
         });

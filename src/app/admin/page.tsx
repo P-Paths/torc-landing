@@ -643,7 +643,7 @@ export default function SimpleAdminDashboard() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-blue-600">Total Zip Codes</p>
-                  <p className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">{leads.filter(lead => lead.zipCode).length}</p>
+                  <p className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">{leads.filter((lead: Lead) => lead.zipCode).length}</p>
                 </div>
               </div>
             </div>
@@ -656,7 +656,7 @@ export default function SimpleAdminDashboard() {
                   <p className="text-sm font-medium text-green-600">Top Zip Code</p>
                   <p className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
                     {(() => {
-                      const zipCounts = leads.reduce((acc, lead) => {
+                      const zipCounts = leads.reduce((acc: Record<string, number>, lead: Lead) => {
                         if (lead.zipCode) {
                           acc[lead.zipCode] = (acc[lead.zipCode] || 0) + 1;
                         }
@@ -677,7 +677,7 @@ export default function SimpleAdminDashboard() {
                 <div>
                   <p className="text-sm font-medium text-purple-600">Unique Zip Codes</p>
                   <p className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                    {new Set(leads.filter(lead => lead.zipCode).map(lead => lead.zipCode)).size}
+                    {new Set(leads.filter((lead: Lead) => lead.zipCode).map((lead: Lead) => lead.zipCode)).size}
                   </p>
                 </div>
               </div>
@@ -789,7 +789,7 @@ export default function SimpleAdminDashboard() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-green-600">Active Agents</p>
-                  <p className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">{agents.filter(agent => agent.isActive).length}</p>
+                  <p className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">{agents.filter((agent: Agent) => agent.isActive).length}</p>
                 </div>
               </div>
             </div>
@@ -855,9 +855,9 @@ export default function SimpleAdminDashboard() {
                   </thead>
                   <tbody className="bg-white/50 divide-y divide-gray-200">
                     {agents.map((agent) => {
-                      const agentLeads = leads.filter(lead => lead.agentId === agent.agentId);
-                      const conversionRate = agentLeads.length > 0 ? 
-                        Math.round((agentLeads.filter(lead => lead.status === 'enrolled').length / agentLeads.length) * 100) : 0;
+                      const agentLeads = leads.filter((lead: Lead) => lead.agentId === agent.agentId);
+                                              const conversionRate = agentLeads.length > 0 ? 
+                          Math.round((agentLeads.filter((lead: Lead) => lead.status === 'enrolled').length / agentLeads.length) * 100) : 0;
                       
                       return (
                         <tr key={agent.id} className="hover:bg-gray-50/50 transition-colors duration-200">
@@ -1204,7 +1204,7 @@ export default function SimpleAdminDashboard() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-green-600">Sent to Lawyers</p>
-                  <p className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">{leads.filter(lead => lead.status === 'contacted').length}</p>
+                  <p className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">{leads.filter((lead: Lead) => lead.status === 'contacted').length}</p>
                 </div>
               </div>
             </div>
@@ -1216,7 +1216,7 @@ export default function SimpleAdminDashboard() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-purple-600">Paid Referrals</p>
-                  <p className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">{leads.filter(lead => lead.status === 'enrolled').length}</p>
+                  <p className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">{leads.filter((lead: Lead) => lead.status === 'enrolled').length}</p>
                 </div>
               </div>
             </div>
@@ -1230,19 +1230,19 @@ export default function SimpleAdminDashboard() {
             <div className="space-y-3">
               <div className="flex justify-between items-center p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200/50 hover:shadow-lg transition-all duration-200">
                 <span className="text-sm font-semibold text-blue-900">New Submissions</span>
-                <span className="text-sm font-bold text-blue-600 bg-blue-100 px-3 py-1 rounded-full">{leads.filter(lead => lead.status === 'new').length}</span>
+                <span className="text-sm font-bold text-blue-600 bg-blue-100 px-3 py-1 rounded-full">{leads.filter((lead: Lead) => lead.status === 'new').length}</span>
               </div>
               <div className="flex justify-between items-center p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl border border-yellow-200/50 hover:shadow-lg transition-all duration-200">
                 <span className="text-sm font-semibold text-yellow-900">Contacted by Lawyers</span>
-                <span className="text-sm font-bold text-yellow-600 bg-yellow-100 px-3 py-1 rounded-full">{leads.filter(lead => lead.status === 'contacted').length}</span>
+                <span className="text-sm font-bold text-yellow-600 bg-yellow-100 px-3 py-1 rounded-full">{leads.filter((lead: Lead) => lead.status === 'contacted').length}</span>
               </div>
               <div className="flex justify-between items-center p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200/50 hover:shadow-lg transition-all duration-200">
                 <span className="text-sm font-semibold text-green-900">Qualified for Treatment</span>
-                <span className="text-sm font-bold text-green-600 bg-green-100 px-3 py-1 rounded-full">{leads.filter(lead => lead.status === 'qualified').length}</span>
+                <span className="text-sm font-bold text-green-600 bg-green-100 px-3 py-1 rounded-full">{leads.filter((lead: Lead) => lead.status === 'qualified').length}</span>
               </div>
               <div className="flex justify-between items-center p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-200/50 hover:shadow-lg transition-all duration-200">
                 <span className="text-sm font-semibold text-purple-900">Enrolled in Treatment</span>
-                <span className="text-sm font-bold text-purple-600 bg-purple-100 px-3 py-1 rounded-full">{leads.filter(lead => lead.status === 'enrolled').length}</span>
+                <span className="text-sm font-bold text-purple-600 bg-purple-100 px-3 py-1 rounded-full">{leads.filter((lead: Lead) => lead.status === 'enrolled').length}</span>
               </div>
             </div>
           </div>
@@ -1302,12 +1302,12 @@ export default function SimpleAdminDashboard() {
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-medium text-green-700">Bonus Eligible:</span>
-                  <span className="text-lg font-bold text-green-600">{leads.filter(lead => checkBonusEligibility(lead)).length}</span>
+                  <span className="text-lg font-bold text-green-600">{leads.filter((lead: Lead) => checkBonusEligibility(lead)).length}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-medium text-green-700">Bonus Rate:</span>
                   <span className="text-lg font-bold text-green-600">
-                    {leads.length > 0 ? Math.round((leads.filter(lead => checkBonusEligibility(lead)).length / leads.length) * 100) : 0}%
+                    {leads.length > 0 ? Math.round((leads.filter((lead: Lead) => checkBonusEligibility(lead)).length / leads.length) * 100) : 0}%
                   </span>
                 </div>
               </div>
@@ -1315,7 +1315,7 @@ export default function SimpleAdminDashboard() {
           </div>
 
           {/* Bonus Eligible Leads Table */}
-          {leads.filter(lead => checkBonusEligibility(lead)).length > 0 && (
+                          {leads.filter((lead: Lead) => checkBonusEligibility(lead)).length > 0 && (
             <div className="mt-6">
               <h3 className="font-semibold text-yellow-800 mb-4 text-lg flex items-center">
                 <span className="mr-2">🎯</span>
@@ -1347,7 +1347,7 @@ export default function SimpleAdminDashboard() {
                       </tr>
                     </thead>
                     <tbody className="bg-white/50 divide-y divide-yellow-200">
-                      {leads.filter(lead => checkBonusEligibility(lead)).map((lead) => (
+                      {leads.filter((lead: Lead) => checkBonusEligibility(lead)).map((lead: Lead) => (
                         <tr key={lead.id} className="hover:bg-yellow-50/50 transition-colors duration-200">
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="text-sm font-semibold text-gray-900">

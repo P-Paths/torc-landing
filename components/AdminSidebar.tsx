@@ -118,7 +118,7 @@ export default function AdminSidebar({ agentId, onLogout, isOpen, onToggle, them
 
   const getUpcomingMeetings = () => {
     const now = new Date();
-    return meetings.filter(meeting => 
+    return meetings.filter((meeting: Meeting) => 
       meeting.date > now && meeting.status === 'upcoming'
     ).slice(0, 3);
   };

@@ -129,7 +129,7 @@ export default function MeetingsPage() {
 
   const deleteMeeting = (meetingId: string) => {
     if (window.confirm('Are you sure you want to delete this meeting?')) {
-      setMeetings(prev => prev.filter(meeting => meeting.id !== meetingId));
+              setMeetings(prev => prev.filter((meeting: any) => meeting.id !== meetingId));
     }
   };
 
@@ -148,13 +148,13 @@ export default function MeetingsPage() {
 
     switch (filter) {
       case 'upcoming':
-        return meetings.filter(meeting => meeting.date > now && meeting.status === 'scheduled');
+        return meetings.filter((meeting: Meeting) => meeting.date > now && meeting.status === 'scheduled');
       case 'today':
-        return meetings.filter(meeting => 
+        return meetings.filter((meeting: Meeting) => 
           meeting.date >= today && meeting.date < tomorrow && meeting.status === 'scheduled'
         );
       case 'completed':
-        return meetings.filter(meeting => meeting.status === 'completed');
+        return meetings.filter((meeting: Meeting) => meeting.status === 'completed');
       default:
         return meetings;
     }
@@ -247,7 +247,7 @@ export default function MeetingsPage() {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Zoom Meetings</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {meetings.filter(m => m.type === 'zoom').length}
+                  {meetings.filter((m: Meeting) => m.type === 'zoom').length}
                 </p>
               </div>
             </div>
@@ -261,7 +261,7 @@ export default function MeetingsPage() {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">One-on-One</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {meetings.filter(m => m.type === 'one-on-one').length}
+                  {meetings.filter((m: Meeting) => m.type === 'one-on-one').length}
                 </p>
               </div>
             </div>
@@ -275,7 +275,7 @@ export default function MeetingsPage() {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Today</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {meetings.filter(m => {
+                  {meetings.filter((m: Meeting) => {
                     const today = new Date();
                     const meetingDate = new Date(m.date);
                     return meetingDate.toDateString() === today.toDateString() && m.status === 'scheduled';
