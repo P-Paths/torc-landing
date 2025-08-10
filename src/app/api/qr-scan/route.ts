@@ -15,7 +15,8 @@ export async function POST(request: NextRequest) {
         ip_address: ipAddress,
         referrer: referrer,
         scanned_at: new Date().toISOString()
-      });
+      })
+      .select();
     
     if (error) {
       console.error('Error recording QR scan:', error);
