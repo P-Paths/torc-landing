@@ -1,31 +1,36 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { adminDb } from '@/lib/firebase-admin-wif';
+import { createServerSupabaseClient } from '@/lib/supabase';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    console.log('Testing Firebase connection...');
+    const supabase = createServerSupabaseClient();
     
-    // Test basic Firestore operations
-    const testDoc = await adminDb.collection('test').add({
-      test: true,
-      timestamp: new Date()
+    // Get all agents from the database
+    const { data: agents, error } = await supabase
+      .from('agents')
+      .select('*');
+    
+    if (error) {
+      console.error('Error fetching agents:', error);
+      return NextResponse.json({
+        success: false,
+        error: 'Failed to fetch agents',
+        details: error.message
+      }, { status: 500 });
+    }
+    
+    return NextResponse.json({
+      success: true,
+      agents: agents || [],
+      count: agents?.length || 0
     });
     
-    console.log('Test document created with ID:', testDoc.id);
-    
-    // Clean up test document
-    await adminDb.collection('test').doc(testDoc.id).delete();
-    
-    return NextResponse.json({ 
-      success: true, 
-      message: 'Firebase connection working',
-      testDocId: testDoc.id
-    });
   } catch (error) {
-    console.error('Firebase test failed:', error);
-    return NextResponse.json({ 
-      error: 'Firebase connection failed',
-      details: error instanceof Error ? error.message : 'Unknown error'
+    console.error('Unexpected error:', error);
+    return NextResponse.json({
+      success: false,
+      error: 'Internal server error',
+      message: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
 }
