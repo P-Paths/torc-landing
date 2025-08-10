@@ -3,10 +3,10 @@ import { createServerSupabaseClient } from '@/lib/supabase';
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { leadId: string } }
+  { params }: { params: Promise<{ leadId: string }> }
 ) {
   try {
-    const { leadId } = params;
+    const { leadId } = await params;
     console.log(`🗑️ Attempting to delete lead: ${leadId}`);
 
     const supabase = createServerSupabaseClient();

@@ -16,10 +16,10 @@ interface Agent {
 // GET - Fetch specific agent
 export async function GET(
   request: NextRequest,
-  { params }: { params: { agentId: string } }
+  { params }: { params: Promise<{ agentId: string }> }
 ) {
   try {
-    const { agentId } = params;
+    const { agentId } = await params;
     
     const agentDoc = await adminDb.collection('agents').doc(agentId).get();
     
@@ -44,10 +44,10 @@ export async function GET(
 // PUT - Update specific agent
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { agentId: string } }
+  { params }: { params: Promise<{ agentId: string }> }
 ) {
   try {
-    const { agentId } = params;
+    const { agentId } = await params;
     const body = await request.json();
     const { name, agentId: newAgentId, password, email, phone, isActive, qrCodeUrl } = body;
 
@@ -72,10 +72,10 @@ export async function PUT(
 // DELETE - Delete specific agent
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { agentId: string } }
+  { params }: { params: Promise<{ agentId: string }> }
 ) {
   try {
-    const { agentId } = params;
+    const { agentId } = await params;
 
     await adminDb.collection('agents').doc(agentId).delete();
 
