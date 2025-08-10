@@ -53,6 +53,8 @@ export default function AgentDashboard() {
   const [loading, setLoading] = useState(true);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [showLeadModal, setShowLeadModal] = useState(false);
+  const [showQRModal, setShowQRModal] = useState(false);
+  const [qrCodeUrl, setQrCodeUrl] = useState('');
   const [gamingLookup, setGamingLookup] = useState({
     platform: 'xbox',
     username: '',
@@ -130,6 +132,24 @@ export default function AgentDashboard() {
     }
   };
 
+  const generateQRCode = () => {
+    const qrUrl = `${window.location.origin}/?agent=${agentId}`;
+    const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qrUrl)}`;
+    setQrCodeUrl(qrCodeUrl);
+    setShowQRModal(true);
+  };
+
+  const downloadQRCode = () => {
+    if (qrCodeUrl) {
+      const link = document.createElement('a');
+      link.href = qrCodeUrl;
+      link.download = `qr-code-${agentId}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
   const handleGamingLookup = async () => {
     if (!gamingLookup.username) return;
 
@@ -178,28 +198,42 @@ export default function AgentDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-800">Agent Dashboard</h1>
-              <p className="text-gray-600">Welcome back, {agentName}</p>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-500">Agent ID: {agentId}</span>
-              <button
-                onClick={handleLogout}
-                className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
-              >
-                Logout
-              </button>
-            </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Top Bar with Agent Info and Logout */}
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-800">Agent Dashboard</h1>
+            <p className="text-gray-600">Welcome back, {agentName}</p>
+          </div>
+          <div className="flex items-center space-x-4">
+            <span className="text-sm text-gray-500">Agent ID: {agentId}</span>
+            <button
+              onClick={handleLogout}
+              className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+            >
+              Logout
+            </button>
           </div>
         </div>
-      </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Quick Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-1 gap-6 mb-8">
+          <button
+            onClick={generateQRCode}
+            className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow text-left max-w-md"
+          >
+            <div className="flex items-center">
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <span className="text-2xl">📱</span>
+              </div>
+              <div className="ml-4">
+                <h3 className="text-lg font-semibold text-gray-900">Generate QR Code</h3>
+                <p className="text-sm text-gray-600">Create QR code for lead collection</p>
+              </div>
+            </div>
+          </button>
+        </div>
+
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div className="bg-white rounded-lg shadow p-6">
@@ -259,36 +293,23 @@ export default function AgentDashboard() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Gaming Platform Tracking */}
+        <div className="grid grid-cols-1 lg:grid-cols-1 gap-8">
+          {/* Leads Management with ATS Tool */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Gaming Platform Tracking</h3>
-              
-              {/* Platform Stats */}
-              <div className="space-y-4 mb-6">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Xbox Players</span>
-                  <span className="font-semibold text-blue-600">{stats?.platformStats.xbox || 0}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">PlayStation Players</span>
-                  <span className="font-semibold text-green-600">{stats?.platformStats.playstation || 0}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Steam Players</span>
-                  <span className="font-semibold text-purple-600">{stats?.platformStats.steam || 0}</span>
-                </div>
+            <div className="bg-white rounded-lg shadow">
+              <div className="px-6 py-4 border-b border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900">Your Leads</h3>
               </div>
-
-              {/* Gaming Lookup Tool */}
-              <div className="border-t pt-4">
-                <h4 className="text-sm font-medium text-gray-900 mb-3">Gaming Profile Lookup</h4>
-                <div className="space-y-3">
+              
+              {/* ATS Gaming Lookup Tool - Now at top of leads section */}
+              <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                <h4 className="text-md font-semibold text-gray-900 mb-3">🎮 ATS Gaming Profile Lookup</h4>
+                
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                   <select
                     value={gamingLookup.platform}
                     onChange={(e) => setGamingLookup(prev => ({ ...prev, platform: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                    className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-900"
                   >
                     <option value="xbox">Xbox</option>
                     <option value="playstation">PlayStation</option>
@@ -299,154 +320,44 @@ export default function AgentDashboard() {
                     placeholder="Enter username/gamertag"
                     value={gamingLookup.username}
                     onChange={(e) => setGamingLookup(prev => ({ ...prev, username: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
+                    className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
                   />
                   <button
                     onClick={handleGamingLookup}
-                    className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                   >
                     Lookup Profile
                   </button>
+                  <a
+                    href="http://tag-checker.tortconnector.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-center"
+                  >
+                    ATS Tool
+                  </a>
                 </div>
 
                 {gamingLookup.result && (
-                  <div className="mt-4 bg-white rounded-lg shadow border">
-                    <div className="px-4 py-3 border-b border-gray-200">
-                      <h5 className="text-lg font-semibold text-gray-900">Gaming Profile Found</h5>
-                    </div>
-                    <div className="p-4">
-                      {/* Profile Header */}
-                      <div className="flex items-center space-x-4 mb-6">
-                        {gamingLookup.result.player?.profilePicture && (
-                          <img 
-                            src={gamingLookup.result.player.profilePicture} 
-                            alt="Profile" 
-                            className="w-16 h-16 rounded-full border-2 border-gray-200"
-                          />
-                        )}
-                        <div>
-                          <h3 className="text-xl font-bold text-gray-900">
-                            {gamingLookup.result.player?.gamerTag || 'Unknown Player'}
-                          </h3>
-                          <p className="text-gray-600 capitalize">
-                            {gamingLookup.result.platform} Platform
-                          </p>
-                        </div>
-                        <div className="ml-auto">
-                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                            gamingLookup.result.qualificationStatus === 'qualified' 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-red-100 text-red-800'
-                          }`}>
-                            {gamingLookup.result.qualificationStatus === 'qualified' ? '✅ Qualified' : '❌ Not Qualified'}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Gaming Stats */}
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                        <div className="bg-blue-50 rounded-lg p-4">
-                          <div className="flex items-center">
-                            <div className="p-2 bg-blue-100 rounded-lg">
-                              <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                              </svg>
-                            </div>
-                            <div className="ml-3">
-                              <p className="text-sm font-medium text-blue-600">Total Hours</p>
-                              <p className="text-2xl font-bold text-blue-900">{gamingLookup.result.totalHours?.toLocaleString() || 0}</p>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="bg-green-50 rounded-lg p-4">
-                          <div className="flex items-center">
-                            <div className="p-2 bg-green-100 rounded-lg">
-                              <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                              </svg>
-                            </div>
-                            <div className="ml-3">
-                              <p className="text-sm font-medium text-green-600">Games Owned</p>
-                              <p className="text-2xl font-bold text-green-900">{gamingLookup.result.totalGames || 0}</p>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="bg-purple-50 rounded-lg p-4">
-                          <div className="flex items-center">
-                            <div className="p-2 bg-purple-100 rounded-lg">
-                              <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                              </svg>
-                            </div>
-                            <div className="ml-3">
-                              <p className="text-sm font-medium text-purple-600">Avg Hours/Day</p>
-                              <p className="text-2xl font-bold text-purple-900">
-                                {gamingLookup.result.totalHours ? Math.round(gamingLookup.result.totalHours / 365) : 0}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Qualification Details */}
-                      {gamingLookup.result.qualificationReason && (
-                        <div className="mb-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-                          <div className="flex items-start">
-                            <div className="flex-shrink-0">
-                              <svg className="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                              </svg>
-                            </div>
-                            <div className="ml-3">
-                              <h4 className="text-sm font-medium text-yellow-800">Qualification Reason</h4>
-                              <p className="text-sm text-yellow-700 mt-1">{gamingLookup.result.qualificationReason}</p>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Top Games */}
-                      {gamingLookup.result.topGames && gamingLookup.result.topGames.length > 0 && (
-                        <div>
-                          <h4 className="text-lg font-semibold text-gray-900 mb-3">Most Played Games</h4>
-                          <div className="space-y-3">
-                            {gamingLookup.result.topGames.slice(0, 5).map((game: any, index: number) => (
-                              <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                                <div className="flex items-center space-x-3">
-                                  <div className="w-8 h-8 bg-gray-200 rounded flex items-center justify-center">
-                                    <span className="text-xs font-bold text-gray-600">{index + 1}</span>
-                                  </div>
-                                  <div>
-                                    <p className="font-medium text-gray-900">{game.name}</p>
-                                    <p className="text-sm text-gray-500">{game.platform}</p>
-                                  </div>
-                                </div>
-                                <div className="text-right">
-                                  <p className="font-semibold text-gray-900">{game.hoursPlayed?.toLocaleString()} hours</p>
-                                  <p className="text-xs text-gray-500">
-                                    {game.hoursPlayed ? Math.round((game.hoursPlayed / gamingLookup.result.totalHours) * 100) : 0}% of total
-                                  </p>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
+                  <div className="mt-3 bg-white rounded-lg p-3 border">
+                    <h5 className="font-semibold text-gray-900 mb-2">Profile Found</h5>
+                    <p className="text-sm text-gray-600">
+                      <strong>Username:</strong> {gamingLookup.result.player?.gamerTag || 'N/A'}<br/>
+                      <strong>Platform:</strong> {gamingLookup.result.platform}<br/>
+                      <strong>Hours:</strong> {gamingLookup.result.totalHours?.toLocaleString() || 'N/A'}<br/>
+                      <strong>Status:</strong> 
+                      <span className={`ml-1 ${
+                        gamingLookup.result.qualificationStatus === 'qualified' 
+                          ? 'text-green-600 font-semibold' 
+                          : 'text-red-600 font-semibold'
+                      }`}>
+                        {gamingLookup.result.qualificationStatus === 'qualified' ? '✅ Qualified' : '❌ Not Qualified'}
+                      </span>
+                    </p>
                   </div>
                 )}
               </div>
-            </div>
-          </div>
 
-          {/* Leads Management */}
-          <div className="lg:col-span-2">
-            <div className="bg-white rounded-lg shadow">
-              <div className="px-6 py-4 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900">Your Leads</h3>
-              </div>
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
@@ -529,6 +440,37 @@ export default function AgentDashboard() {
           </div>
         </div>
       </div>
+
+      {/* QR Code Modal */}
+      {showQRModal && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div className="mt-3 text-center">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Your QR Code</h3>
+              <div className="mb-4">
+                <img src={qrCodeUrl} alt="QR Code" className="mx-auto border border-gray-200 rounded-lg" />
+              </div>
+              <p className="text-sm text-gray-600 mb-4">
+                Scan this QR code to direct leads to your opt-in form
+              </p>
+              <div className="flex justify-center space-x-3">
+                <button
+                  onClick={downloadQRCode}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                >
+                  Download
+                </button>
+                <button
+                  onClick={() => setShowQRModal(false)}
+                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Lead Management Modal */}
       {showLeadModal && selectedLead && (

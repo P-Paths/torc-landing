@@ -14,7 +14,7 @@ export async function GET() {
     // Test Firebase import
     let firebaseStatus = 'Not tested';
     try {
-      const { adminDb } = await import('../../../lib/firebase-admin-wif');
+      const { adminDb } = await import('@/lib/firebase-admin-wif');
       
       // Test a simple write operation
       const testDoc = await adminDb.collection('test').doc('simple-test').set({

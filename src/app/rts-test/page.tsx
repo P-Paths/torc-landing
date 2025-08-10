@@ -7,7 +7,7 @@ export default function RTSTestPage() {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-4">
-            🧪 RTS Funnel Test
+            🎮 RTS Mock VGA Form
           </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Test the RTS Funnel system without submitting real data to law firms. 

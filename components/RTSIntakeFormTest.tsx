@@ -317,9 +317,10 @@ const RTSIntakeFormTest: React.FC = () => {
             Thank you for submitting your information. We'll review your case and contact you within 24 hours.
           </p>
           
-          {testResult && (
+          {/* Test results hidden from users - only show in admin */}
+          {process.env.NODE_ENV === 'development' && testResult && (
             <div className="bg-white p-4 rounded-lg border mb-4">
-              <h3 className="font-semibold text-gray-800 mb-2">Test Results:</h3>
+              <h3 className="font-semibold text-gray-800 mb-2">Test Results (Admin Only):</h3>
               <div className="text-sm text-gray-600 space-y-1">
                 <p><strong>Agent ID:</strong> {testResult.agentId}</p>
                 <p><strong>Bonus Eligible:</strong> {testResult.isBonusEligible ? '✅ Yes' : '❌ No'}</p>
@@ -334,10 +335,10 @@ const RTSIntakeFormTest: React.FC = () => {
           <div className="bg-blue-50 p-4 rounded-lg border">
             <h3 className="font-semibold text-blue-800 mb-2">Next Steps:</h3>
             <ul className="text-sm text-blue-700 space-y-1">
-              <li>• Test the real submission endpoint</li>
-              <li>• Verify Formstack integration</li>
-              <li>• Check Firestore data storage</li>
-              <li>• Monitor admin dashboard</li>
+              <li>• We'll review your information within 24 hours</li>
+              <li>• You'll receive a confirmation email</li>
+              <li>• Our team will contact you to discuss next steps</li>
+              <li>• Keep an eye on your email for updates</li>
             </ul>
           </div>
         </div>
@@ -353,7 +354,7 @@ const RTSIntakeFormTest: React.FC = () => {
           {/* Form Title */}
           <div className="text-center">
             <h1 className="text-4xl font-bold text-white mb-2">Real-Time Solutions</h1>
-            <p className="text-blue-100 text-lg">Video Gaming Addiction Intake Form</p>
+            <p className="text-blue-100 text-lg">RTS Intake Form - Complete Case Evaluation</p>
           </div>
         </div>
       </div>

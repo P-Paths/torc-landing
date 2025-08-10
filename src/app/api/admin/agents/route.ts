@@ -1,158 +1,62 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { initializeApp, getApps, cert, applicationDefault } from 'firebase-admin/app';
-import { getFirestore } from 'firebase-admin/firestore';
+import { createServerSupabaseClient } from '@/lib/supabase';
 
-// Initialize Firebase Admin if not already initialized
-if (!getApps().length) {
+export async function GET(request: NextRequest) {
   try {
-    if (process.env.FIREBASE_ADMIN_PRIVATE_KEY && process.env.FIREBASE_ADMIN_CLIENT_EMAIL) {
-      // Use service account credentials for legacy setups
-      initializeApp({
-        credential: cert({
-          projectId: process.env.FIREBASE_ADMIN_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-          clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
-          privateKey: process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-        }),
-      });
-    } else {
-      // Use Application Default Credentials (ADC) - preferred approach
-      initializeApp({
-        credential: applicationDefault(),
-        projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-      });
+    const supabase = createServerSupabaseClient();
+    
+    // Get all agents
+    const { data: agents, error } = await supabase
+      .from('agents')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      console.error('Error fetching agents:', error);
+      return NextResponse.json({ error: 'Failed to fetch agents' }, { status: 500 });
     }
-  } catch (error) {
-    console.error('Firebase Admin initialization error:', error);
-    // Final fallback - try with just project ID and ADC
-    try {
-      initializeApp({
-        credential: applicationDefault(),
-        projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-      });
-    } catch (fallbackError) {
-      console.error('Firebase Admin fallback initialization error:', fallbackError);
-      // Last resort - initialize without credential (will use ADC)
-      initializeApp({
-        projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-      });
-    }
-  }
-}
-
-const adminDb = getFirestore();
-
-interface Agent {
-  id: string;
-  name: string;
-  agentId: string;
-  password: string;
-  qrCodeUrl?: string;
-  createdAt: Date;
-  isActive: boolean;
-}
-
-// GET - Fetch all agents
-export async function GET() {
-  try {
-    const agentsSnapshot = await adminDb
-      .collection('agents')
-      .orderBy('createdAt', 'desc')
-      .get();
-
-    const agents = agentsSnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-      createdAt: doc.data().createdAt?.toDate?.() || doc.data().createdAt
+    
+    // Transform the data to match frontend expectations
+    const transformedAgents = (agents || []).map(agent => ({
+      id: agent.id,
+      name: agent.name,
+      agentId: agent.code, // Map 'code' to 'agentId'
+      email: agent.email,
+      phone: agent.phone,
+      isActive: agent.is_active, // Map snake_case to camelCase
+      createdAt: agent.created_at,
+      commissionBaseCents: agent.commission_base_cents, // Map snake_case to camelCase
+      commissionBonusQualifiedCents: agent.commission_bonus_qualified_cents // Map snake_case to camelCase
     }));
-
-    return NextResponse.json({ agents });
+    
+    return NextResponse.json({ agents: transformedAgents });
+    
   } catch (error) {
-    console.error('Error fetching agents:', error);
-    return NextResponse.json({ error: 'Failed to fetch agents' }, { status: 500 });
+    console.error('Error in agents API:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
-// POST - Create new agent
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { name, agentId, password } = body;
-
-    if (!name || !agentId || !password) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    const agentData = await request.json();
+    const supabase = createServerSupabaseClient();
+    
+    const { data: agent, error } = await supabase
+      .from('agents')
+      .insert(agentData)
+      .select('*')
+      .single();
+    
+    if (error) {
+      console.error('Error creating agent:', error);
+      return NextResponse.json({ error: 'Failed to create agent' }, { status: 500 });
     }
-
-    // Check if agent ID already exists
-    const existingAgent = await adminDb
-      .collection('agents')
-      .where('agentId', '==', agentId)
-      .get();
-
-    if (!existingAgent.empty) {
-      return NextResponse.json({ error: 'Agent ID already exists' }, { status: 409 });
-    }
-
-    const newAgent: Omit<Agent, 'id'> = {
-      name,
-      agentId,
-      password,
-      createdAt: new Date(),
-      isActive: true
-    };
-
-    const docRef = await adminDb.collection('agents').add(newAgent);
-
-    return NextResponse.json({ 
-      id: docRef.id,
-      ...newAgent 
-    });
+    
+    return NextResponse.json({ agent });
+    
   } catch (error) {
     console.error('Error creating agent:', error);
-    return NextResponse.json({ error: 'Failed to create agent' }, { status: 500 });
-  }
-}
-
-// PUT - Update agent
-export async function PUT(request: NextRequest) {
-  try {
-    const body = await request.json();
-    const { id, name, agentId, password, isActive, qrCodeUrl } = body;
-
-    if (!id) {
-      return NextResponse.json({ error: 'Agent ID is required' }, { status: 400 });
-    }
-
-    const updateData: Partial<Agent> = {};
-    if (name) updateData.name = name;
-    if (agentId) updateData.agentId = agentId;
-    if (password) updateData.password = password;
-    if (qrCodeUrl) updateData.qrCodeUrl = qrCodeUrl;
-    if (typeof isActive === 'boolean') updateData.isActive = isActive;
-
-    await adminDb.collection('agents').doc(id).update(updateData);
-
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error('Error updating agent:', error);
-    return NextResponse.json({ error: 'Failed to update agent' }, { status: 500 });
-  }
-}
-
-// DELETE - Delete agent
-export async function DELETE(request: NextRequest) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get('id');
-
-    if (!id) {
-      return NextResponse.json({ error: 'Agent ID is required' }, { status: 400 });
-    }
-
-    await adminDb.collection('agents').doc(id).delete();
-
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error('Error deleting agent:', error);
-    return NextResponse.json({ error: 'Failed to delete agent' }, { status: 500 });
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 } 

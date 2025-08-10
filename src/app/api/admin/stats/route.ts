@@ -1,86 +1,103 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { initializeApp, getApps, cert, applicationDefault } from 'firebase-admin/app';
-import { getFirestore } from 'firebase-admin/firestore';
-
-// Initialize Firebase Admin if not already initialized
-if (!getApps().length) {
-  try {
-    if (process.env.FIREBASE_ADMIN_PRIVATE_KEY && process.env.FIREBASE_ADMIN_CLIENT_EMAIL) {
-      // Use service account credentials for legacy setups
-      initializeApp({
-        credential: cert({
-          projectId: process.env.FIREBASE_ADMIN_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-          clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
-          privateKey: process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-        }),
-      });
-    } else {
-      // Use Application Default Credentials (ADC) - preferred approach
-      initializeApp({
-        credential: applicationDefault(),
-        projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-      });
-    }
-  } catch (error) {
-    console.error('Firebase Admin initialization error:', error);
-    // Final fallback - try with just project ID and ADC
-    try {
-      initializeApp({
-        credential: applicationDefault(),
-        projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-      });
-    } catch (fallbackError) {
-      console.error('Firebase Admin fallback initialization error:', fallbackError);
-      // Last resort - initialize without credential (will use ADC)
-      initializeApp({
-        projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-      });
-    }
-  }
-}
-
-const adminDb = getFirestore();
+import { createServerSupabaseClient } from '@/lib/supabase';
 
 export async function GET(request: NextRequest) {
   try {
-    // Get leads collection
-    const leadsSnapshot = await adminDb.collection('leads').get();
-    const leads = leadsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-    // Get agents collection
-    const agentsSnapshot = await adminDb.collection('agents').get();
-    const agents = agentsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-    // Calculate stats
-    const totalLeads = leads.length;
-    const totalAgents = agents.length;
-    const activeAgents = agents.filter((agent: any) => agent.status === 'active').length;
-    const emergencyLeads = leads.filter((lead: any) => lead.hasEmergencyIndicators).length;
-    const recentLeads = leads.filter((lead: any) => {
-      const leadDate = new Date(lead.submittedAt);
-      const weekAgo = new Date();
-      weekAgo.setDate(weekAgo.getDate() - 7);
-      return leadDate >= weekAgo;
-    }).length;
-
-    // Calculate average symptoms
-    const totalSymptoms = leads.reduce((sum, lead: any) => sum + (lead.totalSymptoms || 0), 0);
-    const averageSymptoms = totalLeads > 0 ? totalSymptoms / totalLeads : 0;
-
-    return NextResponse.json({
-      totalLeads,
-      totalAgents,
-      activeAgents,
-      emergencyLeads,
-      recentLeads,
-      averageSymptoms
-    });
-
+    const supabase = createServerSupabaseClient();
+    
+    // Get total leads count
+    const { count: totalLeads, error: leadsError } = await supabase
+      .from('leads')
+      .select('*', { count: 'exact', head: true });
+    
+    if (leadsError) {
+      console.error('Error counting leads:', leadsError);
+      return NextResponse.json({ error: 'Failed to count leads' }, { status: 500 });
+    }
+    
+    // Get total agents count
+    const { count: totalAgents, error: agentsError } = await supabase
+      .from('agents')
+      .select('*', { count: 'exact', head: true });
+    
+    if (agentsError) {
+      console.error('Error counting agents:', agentsError);
+      return NextResponse.json({ error: 'Failed to count agents' }, { status: 500 });
+    }
+    
+    // Get leads by source
+    const { data: leadsBySource, error: sourceError } = await supabase
+      .from('leads')
+      .select('source')
+      .order('source');
+    
+    if (sourceError) {
+      console.error('Error getting leads by source:', sourceError);
+      return NextResponse.json({ error: 'Failed to get leads by source' }, { status: 500 });
+    }
+    
+    // Count leads by source
+    const sourceCounts = leadsBySource?.reduce((acc, lead) => {
+      acc[lead.source] = (acc[lead.source] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>) || {};
+    
+    // Get leads by status
+    const { data: leadsByStatus, error: statusError } = await supabase
+      .from('leads')
+      .select('status')
+      .order('status');
+    
+    if (statusError) {
+      console.error('Error getting leads by status:', statusError);
+      return NextResponse.json({ error: 'Failed to get leads by status' }, { status: 500 });
+    }
+    
+    // Count leads by status
+    const statusCounts = leadsByStatus?.reduce((acc, lead) => {
+      acc[lead.status] = (acc[lead.status] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>) || {};
+    
+    // Get bonus eligible leads count
+    const { count: bonusEligibleLeads, error: bonusError } = await supabase
+      .from('leads')
+      .select('*', { count: 'exact', head: true })
+      .eq('is_bonus_eligible', true);
+    
+    if (bonusError) {
+      console.error('Error counting bonus eligible leads:', bonusError);
+      return NextResponse.json({ error: 'Failed to count bonus eligible leads' }, { status: 500 });
+    }
+    
+    // Get recent leads (last 7 days)
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    
+    const { count: recentLeads, error: recentError } = await supabase
+      .from('leads')
+      .select('*', { count: 'exact', head: true })
+      .gte('submitted_at', sevenDaysAgo.toISOString());
+    
+    if (recentError) {
+      console.error('Error counting recent leads:', recentError);
+      return NextResponse.json({ error: 'Failed to count recent leads' }, { status: 500 });
+    }
+    
+    const stats = {
+      totalLeads: totalLeads || 0,
+      totalAgents: totalAgents || 0,
+      bonusEligibleLeads: bonusEligibleLeads || 0,
+      recentLeads: recentLeads || 0,
+      leadsBySource: sourceCounts,
+      leadsByStatus: statusCounts,
+      timestamp: new Date().toISOString()
+    };
+    
+    return NextResponse.json({ stats });
+    
   } catch (error) {
-    console.error('Error fetching admin stats:', error);
-    return NextResponse.json({
-      error: 'Failed to fetch stats',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    console.error('Error in stats API:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 } 

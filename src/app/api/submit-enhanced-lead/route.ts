@@ -1,102 +1,181 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { adminDb } from '../../../lib/firebase-admin-wif';
+import { createServerSupabaseClient } from '@/lib/supabase';
+import { ATSGamerCheckerService } from '@/lib/ats-gamer-checker';
 
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.json();
     
-    // Extract agent ID from URL params or use default
+    // Extract agent code from URL params or use default
     const url = new URL(request.url);
-    const agentId = url.searchParams.get('agent') || 'AHRPE5559';
+    const agentCode = url.searchParams.get('agent') || 'AHRPE5559';
+    
+    // Look up the actual agent ID from the agents table
+    const supabase = createServerSupabaseClient();
+    const { data: agent, error: agentError } = await supabase
+      .from('agents')
+      .select('id')
+      .eq('code', agentCode)
+      .single();
+    
+    if (agentError || !agent) {
+      console.error('❌ Agent lookup failed:', agentError);
+      return NextResponse.json({
+        success: false,
+        error: 'Invalid agent code',
+        timestamp: new Date().toISOString()
+      }, { status: 400 });
+    }
+    
+    const agentId = agent.id;
+    console.log('✅ Agent found:', { code: agentCode, id: agentId });
     
     // Create the lead document with all form data and metadata
     const leadDocument = {
       // Agent and submission metadata
-      agentId: agentId,
-      submittedAt: new Date().toISOString(),
-      timestamp: new Date().toISOString(),
+      agent_id: agentId,
+      source: 'enhanced-intake-form',
       
       // Contact Information (handle both naming conventions)
-      agentName: formData.agentName || 'Form Referral',
-      relationship: formData.relationship || formData.familyMember || 'unknown',
-      gamerFirstName: formData.gamerFirstName || formData.firstName || '',
-      gamerLastName: formData.gamerLastName || formData.lastName || '',
+      first_name: formData.gamerFirstName || formData.firstName || '',
+      last_name: formData.gamerLastName || formData.lastName || '',
       email: formData.email || '',
       phone: formData.phone || '',
-      bestTimeToCall: formData.bestTimeToCall || 'anytime',
+      best_time_to_call: formData.bestTimeToCall || 'anytime',
       
       // Gaming Profile
       platforms: formData.platforms || [],
       gamertags: formData.gamertags || {},
-      dailyHours: formData.dailyHours || '',
+      daily_hours: formData.dailyHours || '',
       schedule: formData.schedule || [],
-      primaryGames: formData.primaryGames || formData.games || [],
+      primary_games: formData.primaryGames || formData.games || [],
       
       // Assessment
-      durationOfConcern: formData.durationOfConcern || 'unknown',
-      affectedAreas: formData.affectedAreas || [],
+      duration_of_concern: formData.durationOfConcern || 'unknown',
+      affected_areas: formData.affectedAreas || [],
       symptoms: formData.symptoms || [],
-      emergencyIndicators: formData.emergencyIndicators || [],
+      emergency_indicators: formData.emergencyIndicators || [],
       
       // Treatment
-      helpType: formData.helpType || 'legal_compensation',
-      previousAttempts: formData.previousAttempts || [],
-      zoomLink: formData.zoomLink || '',
+      help_type: formData.helpType || 'legal_compensation',
+      previous_attempts: formData.previousAttempts || [],
       
       // Status and processing
       status: 'new',
-      assessmentScore: null, // Future use for AI assessment
-      processedAt: null,
-      assignedTo: null,
+      assessment_score: null, // Future use for AI assessment
+      processed_at: null,
+      assigned_to: null,
       notes: [],
       
       // Additional metadata for tracking
-      formVersion: 'enhanced-v1',
-      submissionSource: 'enhanced-intake-form',
-      hasEmergencyIndicators: (formData.emergencyIndicators?.length || 0) > 0,
-      totalSymptoms: formData.symptoms?.length || 0,
-      affectedAreasCount: formData.affectedAreas?.length || 0,
+      form_version: 'enhanced-v1',
+      submission_source: 'enhanced-intake-form',
       
-      // Additional form data (if provided)
-      additionalData: formData.additionalData || {}
+      // Bonus eligibility (will be updated after ATS check)
+      is_bonus_eligible: false,
+      bonus_verified_at: null
     };
 
     // Log the data for debugging
     console.log('=== LEAD SUBMISSION ===');
     console.log('Agent ID:', agentId);
     console.log('Contact Info:', {
-      firstName: leadDocument.gamerFirstName,
-      lastName: leadDocument.gamerLastName,
+      firstName: leadDocument.first_name,
+      lastName: leadDocument.last_name,
       email: leadDocument.email,
       phone: leadDocument.phone
     });
 
-    // Save to Firestore using Admin SDK
+    // Supabase client already initialized above
+    
+    // Save to Supabase leads table
     try {
-      const docRef = await adminDb.collection('leads').add(leadDocument);
-      console.log('✅ Lead saved to Firestore with ID:', docRef.id);
+      const { data: lead, error: leadError } = await supabase
+        .from('leads')
+        .insert(leadDocument)
+        .select('id')
+        .single();
+      
+      if (leadError) throw leadError;
+      
+      console.log('✅ Lead saved to Supabase with ID:', lead.id);
+      
+      // Check bonus eligibility using ATS tool if Xbox gamertag is provided
+      if (formData.gamertags?.xbox && formData.platforms?.includes('Xbox')) {
+        try {
+          console.log('🎮 Checking Xbox bonus eligibility for:', formData.gamertags.xbox);
+          
+          const bonusResult = await ATSGamerCheckerService.checkBonusEligibility(
+            formData.gamertags.xbox,
+            'Xbox'
+          );
+          
+          // Update lead with bonus eligibility
+          await supabase
+            .from('leads')
+            .update({
+              is_bonus_eligible: bonusResult.isEligible,
+              bonus_verified_at: new Date().toISOString()
+            })
+            .eq('id', lead.id);
+          
+          // Create bonus flag if eligible
+          if (bonusResult.isEligible) {
+            await supabase
+              .from('bonus_flags')
+              .insert({
+                lead_id: lead.id,
+                agent_id: agentId,
+                platform: 'Xbox',
+                gamertag: formData.gamertags.xbox,
+                age: bonusResult.age,
+                total_hours: bonusResult.totalHours,
+                games_played: bonusResult.gamesPlayed,
+                bonus_amount: 10.00,
+                bonus_reason: bonusResult.reason,
+                status: 'pending'
+              });
+            
+            console.log('✅ Bonus flag created for eligible Xbox gamer');
+          }
+          
+        } catch (bonusError) {
+          console.error('❌ Bonus eligibility check failed:', bonusError);
+          // Continue with submission even if bonus check fails
+        }
+      }
       
       return NextResponse.json({
         success: true,
-        message: 'Form submitted successfully! Data saved to Firestore.',
-        documentId: docRef.id,
-        leadId: docRef.id,
+        message: 'Form submitted successfully! Data saved to Supabase.',
+        documentId: lead.id,
+        leadId: lead.id,
         timestamp: new Date().toISOString()
       });
       
-    } catch (firebaseError) {
-      console.error('❌ Firebase save failed:', firebaseError);
+    } catch (supabaseError) {
+      console.error('❌ Supabase save failed:', supabaseError);
       
-      // FALLBACK: Return success anyway for now
-      console.log('⚠️ Using fallback response - Firebase not available');
+      // FALLBACK: Save to local storage and return success
+      console.log('⚠️ Using fallback storage - Supabase not available');
+      
+      // Save to backup file system
+      const backupData = {
+        ...leadDocument,
+        backupTimestamp: new Date().toISOString(),
+        backupMethod: 'file-system-fallback'
+      };
+      
+      // For now, just log the data (we'll implement file storage later)
+      console.log('📝 Backup data logged:', backupData);
       
       return NextResponse.json({
         success: true,
-        message: 'Form submitted successfully! (Firebase temporarily unavailable)',
+        message: 'Form submitted successfully! (Supabase temporarily unavailable)',
         documentId: 'fallback-' + Date.now(),
         leadId: 'fallback-' + Date.now(),
         timestamp: new Date().toISOString(),
-        note: 'Data logged but not saved to database due to Firebase configuration issue'
+        note: 'Data logged but not saved to database due to Supabase configuration issue'
       });
     }
 

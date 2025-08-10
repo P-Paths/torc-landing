@@ -1,0 +1,32 @@
+{
+  "agentName": "Test Agent AHRPE5559",
+  "relationship": "loved_one",
+  "gamerFirstName": "Michael",
+  "gamerLastName": "Thompson",
+  "email": "michael.thompson.test@example.com",
+  "phone": "555-123-4567",
+  "bestTimeToCall": "afternoon",
+  "platforms": ["xbox", "playstation"],
+  "gamertags": {
+    "xbox": "GamingPro2024",
+    "playstation": "PS4Player"
+  },
+  "dailyHours": "6-8",
+  "schedule": ["weekends", "evenings"],
+  "primaryGames": ["Call of Duty", "Fortnite", "Grand Theft Auto V"],
+  "durationOfConcern": "6-12 months",
+  "affectedAreas": ["school", "social"],
+  "symptoms": ["mood changes", "sleep issues"],
+  "emergencyIndicators": [],
+  "helpType": "legal_compensation",
+  "previousAttempts": ["parental controls"],
+  "additionalData": {
+    "gamerDOB": {
+      "month": "3",
+      "day": "15",
+      "year": "2008"
+    },
+    "startedAge": "12",
+    "zipCode": "48201"
+  }
+}

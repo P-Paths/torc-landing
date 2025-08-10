@@ -1,6 +1,6 @@
 'use client';
 // src/app/page.js
-import React, { useState, Suspense } from 'react';
+import React, { useState, Suspense, useEffect } from 'react';
 import HeroSections from '../../components/HeroSections';
 import QualificationsSection from '../../components/QualificationsSection';
 import StepGuide from '../../components/StepGuide';
@@ -8,9 +8,21 @@ import CompaniesInLawsuit from '../../components/CompaniesInLawsuit';
 import TreatmentOptionsSection from '../../components/TreatmentOptionsSection';
 import Testimonials from '../../components/Testimonials';
 import Footer from '../../components/Footer';
+
 export default function Home() {
+  const [agentId, setAgentId] = useState('AHRPE5559');
+
+  useEffect(() => {
+    // Get agent ID from URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const agentFromUrl = urlParams.get('agent');
+    if (agentFromUrl) {
+      setAgentId(agentFromUrl);
+    }
+  }, []);
+
   const handleQualifyClick = () => {
-    window.location.href = '/ats-form?agent=AHRPE5559';
+    window.location.href = `/ats-form?agent=${agentId}`;
   };
 
   return (
@@ -29,7 +41,7 @@ export default function Home() {
               onClick={handleQualifyClick}
               className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-4 px-8 rounded-lg text-xl transition-colors duration-300 shadow-lg"
             >
-              See if You Qualify
+              Start RTS Opt-In Form
             </button>
           </div>
         </div>

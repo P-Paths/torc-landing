@@ -15,6 +15,7 @@ const getProjectId = () => {
   console.log('🔧 Firebase Project ID:', projectId);
   console.log('🔧 Environment:', process.env.NODE_ENV);
   console.log('🔧 Vercel:', isVercel);
+  console.log('🔧 Available env vars:', Object.keys(process.env).filter(key => key.includes('FIREBASE')));
   
   return projectId;
 };
@@ -64,7 +65,7 @@ if (!getApps().length) {
             collection: (name: string) => ({
               add: async (data: any) => {
                 console.log('📝 Mock Firestore: Adding document to', name, data);
-                return { id: 'mock-doc-id' };
+                return { id: 'mock-doc-id-' + Date.now() };
               },
               doc: (id: string) => ({
                 set: async (data: any) => {
@@ -74,6 +75,25 @@ if (!getApps().length) {
                 get: async () => ({
                   exists: true,
                   data: () => ({ mock: true, timestamp: new Date().toISOString() })
+                }),
+                update: async (data: any) => {
+                  console.log('📝 Mock Firestore: Updating document', id, 'in', name, data);
+                  return { id };
+                },
+                delete: async () => {
+                  console.log('📝 Mock Firestore: Deleting document', id, 'in', name);
+                  return { id };
+                }
+              }),
+              where: (field: string, op: string, value: any) => ({
+                get: async () => ({
+                  empty: true,
+                  docs: []
+                })
+              }),
+              orderBy: (field: string, direction?: string) => ({
+                get: async () => ({
+                  docs: []
                 })
               })
             })
@@ -92,5 +112,65 @@ if (!getApps().length) {
 }
 
 // Export Firestore and Auth instances for server-side use
-export const adminDb = getFirestore();
-export const adminAuth = getAuth(); 
+let adminDb: any;
+let adminAuth: any;
+
+// For development, use mock Firestore to avoid Firebase auth issues
+if (process.env.NODE_ENV === 'development') {
+  console.log('🔧 Development mode: Using mock Firestore for testing');
+  
+  // Create a simple mock Firestore that works for agent management
+  const mockFirestore = {
+    collection: (name: string) => ({
+      add: async (data: any) => {
+        console.log('📝 Mock Firestore: Adding document to', name, data);
+        return { id: 'mock-doc-id-' + Date.now() };
+      },
+      doc: (id: string) => ({
+        set: async (data: any) => {
+          console.log('📝 Mock Firestore: Setting document', id, 'in', name, data);
+          return { id };
+        },
+        get: async () => ({
+          exists: true,
+          data: () => ({ mock: true, timestamp: new Date().toISOString() })
+        }),
+        update: async (data: any) => {
+          console.log('📝 Mock Firestore: Updating document', id, 'in', name, data);
+          return { id };
+        },
+        delete: async () => {
+          console.log('📝 Mock Firestore: Deleting document', id, 'in', name);
+          return { id };
+        }
+      }),
+      where: (field: string, op: string, value: any) => ({
+        get: async () => ({
+          empty: true,
+          docs: []
+        })
+      }),
+      orderBy: (field: string, direction?: string) => ({
+        get: async () => ({
+          docs: []
+        })
+      })
+    })
+  };
+  
+  adminDb = mockFirestore;
+  adminAuth = { verifyIdToken: async () => ({ uid: 'mock-user' }) };
+} else {
+  // Production: Try real Firebase
+  try {
+    adminDb = getFirestore();
+    adminAuth = getAuth();
+    console.log('✅ Using real Firebase instances');
+  } catch (error) {
+    console.log('⚠️ Firebase initialization failed, using mock instances');
+    adminDb = (global as any).mockFirestore;
+    adminAuth = (global as any).mockAuth;
+  }
+}
+
+export { adminDb, adminAuth }; 

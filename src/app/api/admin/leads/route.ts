@@ -1,86 +1,73 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { initializeApp, getApps, cert, applicationDefault } from 'firebase-admin/app';
-import { getFirestore } from 'firebase-admin/firestore';
-
-// Initialize Firebase Admin if not already initialized
-if (!getApps().length) {
-  try {
-    if (process.env.FIREBASE_ADMIN_PRIVATE_KEY && process.env.FIREBASE_ADMIN_CLIENT_EMAIL) {
-      // Use service account credentials for legacy setups
-      initializeApp({
-        credential: cert({
-          projectId: process.env.FIREBASE_ADMIN_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-          clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
-          privateKey: process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-        }),
-      });
-    } else {
-      // Use Application Default Credentials (ADC) - preferred approach
-      initializeApp({
-        credential: applicationDefault(),
-        projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-      });
-    }
-  } catch (error) {
-    console.error('Firebase Admin initialization error:', error);
-    // Final fallback - try with just project ID and ADC
-    try {
-      initializeApp({
-        credential: applicationDefault(),
-        projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-      });
-    } catch (fallbackError) {
-      console.error('Firebase Admin fallback initialization error:', fallbackError);
-      // Last resort - initialize without credential (will use ADC)
-      initializeApp({
-        projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-      });
-    }
-  }
-}
-
-const adminDb = getFirestore();
+import { createServerSupabaseClient } from '@/lib/supabase';
 
 export async function GET(request: NextRequest) {
   try {
-    const leadsSnapshot = await adminDb.collection('leads')
-      .orderBy('submittedAt', 'desc')
-      .limit(50)
-      .get();
-
-    const leads = leadsSnapshot.docs.map(doc => {
-      const data = doc.data();
-      return {
-        id: doc.id,
-        agentId: data.agentId || '',
-        agentName: data.agentName || '',
-        gamerFirstName: data.gamerFirstName || '',
-        gamerLastName: data.gamerLastName || '',
-        email: data.email || '',
-        phone: data.phone || '',
-        status: data.status || 'new',
-        submittedAt: data.submittedAt?.toDate?.() || data.submittedAt || new Date(),
-        hasEmergencyIndicators: data.hasEmergencyIndicators || false,
-        totalSymptoms: data.totalSymptoms || 0,
-        // Add additional fields for enhanced display
-        platforms: data.platforms || [],
-        gamertags: data.gamertags || {},
-        dailyHours: data.dailyHours || '',
-        symptoms: data.symptoms || [],
-        emergencyIndicators: data.emergencyIndicators || [],
-        affectedAreas: data.affectedAreas || [],
-        helpType: data.helpType || '',
-        insurance: data.insurance || '',
-        bestTimeToCall: data.bestTimeToCall || ''
-      };
-    });
-
-    return NextResponse.json({ leads });
+    const supabase = createServerSupabaseClient();
+    
+    // Get all leads with agent information
+    const { data: leads, error } = await supabase
+      .from('leads')
+      .select(`
+        *,
+        agents:agent_id (
+          name,
+          email
+        )
+      `)
+      .order('submitted_at', { ascending: false });
+    
+    if (error) {
+      console.error('Error fetching leads:', error);
+      return NextResponse.json({ error: 'Failed to fetch leads' }, { status: 500 });
+    }
+    
+    // Transform the data to match frontend expectations
+    const transformedLeads = (leads || []).map(lead => ({
+      id: lead.id,
+      agentId: lead.agent_id,
+      agentName: lead.agents?.name || 'Unknown Agent',
+      gamerFirstName: lead.first_name,
+      gamerLastName: lead.last_name,
+      email: lead.email,
+      phone: lead.phone,
+      status: lead.status || 'new',
+      submittedAt: lead.submitted_at,
+      hasEmergencyIndicators: lead.has_emergency_indicators || false,
+      totalSymptoms: lead.total_symptoms || 0,
+      platforms: lead.platforms || [],
+      gamertags: lead.gamertags || {},
+      dailyHours: lead.daily_hours || 'N/A',
+      primaryGames: lead.primary_games || []
+    }));
+    
+    return NextResponse.json({ leads: transformedLeads });
+    
   } catch (error) {
-    console.error('Error fetching leads:', error);
-    return NextResponse.json({
-      error: 'Failed to fetch leads',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    console.error('Error in leads API:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const { leadId, updates } = await request.json();
+    const supabase = createServerSupabaseClient();
+    
+    const { error } = await supabase
+      .from('leads')
+      .update(updates)
+      .eq('id', leadId);
+    
+    if (error) {
+      console.error('Error updating lead:', error);
+      return NextResponse.json({ error: 'Failed to update lead' }, { status: 500 });
+    }
+    
+    return NextResponse.json({ success: true });
+    
+  } catch (error) {
+    console.error('Error updating lead:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 } 

@@ -42,6 +42,7 @@ interface ATSFormData {
   consent: boolean;
 }
 
+// RTS Opt-In Form Component (formerly ATS Form)
 const ATSReplicaForm: React.FC = () => {
   const [formData, setFormData] = useState<ATSFormData>({
     familyMember: '',
@@ -251,7 +252,7 @@ const ATSReplicaForm: React.FC = () => {
                     <span className="text-3xl">⏰</span>
                   </div>
                 </div>
-                <h3 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-3 animate-fadeInUp">FREE CASE EVALUATION</h3>
+                <h3 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-3 animate-fadeInUp">RTS OPT-IN FORM</h3>
                 <p className="text-xl font-semibold text-gray-700 animate-fadeInUp">YOU MAY BE ENTITLED TO SIGNIFICANT COMPENSATION</p>
               </div>
 

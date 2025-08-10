@@ -34,7 +34,7 @@ export default function ATSFormPage() {
         </div>
       </div>
 
-      {/* ATS Replica Form */}
+      {/* RTS Opt-In Form */}
       <ATSReplicaForm />
     </div>
   );

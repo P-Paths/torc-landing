@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Production: Save to Firestore using WIF-ready configuration
-    const { adminDb } = await import('../../../lib/firebase-admin-wif');
+    const { adminDb } = await import('@/lib/firebase-admin-wif');
     const docRef = await adminDb.collection('leads').add(leadData);
 
     console.log('Form submitted successfully to Firestore:', {

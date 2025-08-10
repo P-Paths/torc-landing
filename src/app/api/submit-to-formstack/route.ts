@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { adminDb } from '../../../lib/firebase-admin-wif';
+import { adminDb } from '@/lib/firebase-admin-wif';
 
 // Formstack endpoints for different priority levels
 const FORMSTACK_ENDPOINTS = {
