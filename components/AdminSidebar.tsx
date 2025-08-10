@@ -282,7 +282,7 @@ export default function AdminSidebar({ agentId, onLogout, isOpen, onToggle, them
                 }`}
                 title={isOpen ? undefined : item.name}
               >
-                <span className="text-xs font-bold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent px-2 py-1 rounded border border-gray-300">
+                <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded">
                   {item.icon}
                 </span>
                 {isOpen && (
@@ -315,7 +315,7 @@ export default function AdminSidebar({ agentId, onLogout, isOpen, onToggle, them
                     : 'text-gray-700 hover:bg-gray-50'
                 }`}
               >
-                <span className="text-xs font-bold bg-gradient-to-r from-yellow-500 to-orange-600 bg-clip-text text-transparent px-2 py-1 rounded border border-gray-300">
+                <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded">
                   {theme === 'dark' ? 'LIGHT' : 'DARK'}
                 </span>
                 <span className="font-medium">
@@ -336,7 +336,7 @@ export default function AdminSidebar({ agentId, onLogout, isOpen, onToggle, them
               }`}
               title={isOpen ? undefined : "Logout"}
             >
-              <span className="text-xs font-bold bg-gradient-to-r from-red-500 to-pink-600 bg-clip-text text-transparent px-2 py-1 rounded border border-gray-300">
+              <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded">
                 EXIT
               </span>
               {isOpen && <span className="font-medium">Logout</span>}
