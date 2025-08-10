@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 interface Lead {
@@ -33,7 +33,7 @@ interface AgentStats {
   bonusEligibleLeads: number;
 }
 
-export default function AgentDashboard() {
+function AgentDashboardContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const agentId = searchParams.get('agent') || 'AHRPE5559';
@@ -364,5 +364,13 @@ export default function AgentDashboard() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function AgentDashboard() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <AgentDashboardContent />
+    </Suspense>
   );
 }
