@@ -3,6 +3,15 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '../../../../components/AdminLayout';
 
+interface QRScan {
+  id: string;
+  agent_id: string;
+  user_agent: string;
+  ip_address: string;
+  referrer: string;
+  scanned_at: string;
+}
+
 interface QRCode {
   id: string;
   agentId: string;
@@ -20,11 +29,24 @@ export default function QRCodesPage() {
   const [agentId, setAgentId] = useState('AHRPE5559');
   const [isAuthenticated, setIsAuthenticated] = useState(true);
   const [qrCodes, setQrCodes] = useState<QRCode[]>([]);
+  const [qrScans, setQrScans] = useState<QRScan[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedAgent, setSelectedAgent] = useState('AHRPE5559');
 
   const handleLogout = () => {
     setIsAuthenticated(false);
+  };
+
+  const loadQRScans = async () => {
+    try {
+      const response = await fetch('/api/qr-scan');
+      if (response.ok) {
+        const data = await response.json();
+        setQrScans(data.scans || []);
+      }
+    } catch (error) {
+      console.error('Error loading QR scans:', error);
+    }
   };
 
   const generateQRCode = async () => {
@@ -75,28 +97,48 @@ export default function QRCodesPage() {
     }
   };
 
+  // Calculate real stats from scan data
+  const getScansForAgent = (agentId: string) => {
+    return qrScans.filter(scan => scan.agent_id === agentId).length;
+  };
+
+  const getLeadsForAgent = (agentId: string) => {
+    // This would need to be connected to actual lead data
+    // For now, we'll use a placeholder
+    return Math.floor(getScansForAgent(agentId) * 0.1); // Assume 10% conversion rate
+  };
+
   useEffect(() => {
-    // Load existing QR codes (mock data for now)
-    const mockQRCodes: QRCode[] = [
-      {
-        id: '1',
-        agentId: 'AHRPE5559',
-        agentName: 'Agent AHRPE5559',
-        code: 'AHRPE5559',
-        destination: `${window.location.origin}/ats-form?agent=AHRPE5559`,
-        active: true,
-        createdAt: new Date('2024-01-01'),
-        qrCodeUrl: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`${window.location.origin}/ats-form?agent=AHRPE5559`)}`,
-        scans: 0,
-        leadsGenerated: 0
-      }
-    ];
-    setQrCodes(mockQRCodes);
-    setIsLoading(false);
-  }, []);
+    const loadData = async () => {
+      setIsLoading(true);
+      
+      // Load QR scans
+      await loadQRScans();
+      
+      // Load existing QR codes (mock data for now)
+      const mockQRCodes: QRCode[] = [
+        {
+          id: '1',
+          agentId: 'AHRPE5559',
+          agentName: 'Agent AHRPE5559',
+          code: 'AHRPE5559',
+          destination: `${window.location.origin}/ats-form?agent=AHRPE5559`,
+          active: true,
+          createdAt: new Date('2024-01-01'),
+          qrCodeUrl: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`${window.location.origin}/ats-form?agent=AHRPE5559`)}`,
+          scans: getScansForAgent('AHRPE5559'),
+          leadsGenerated: getLeadsForAgent('AHRPE5559')
+        }
+      ];
+      setQrCodes(mockQRCodes);
+      setIsLoading(false);
+    };
+    
+    loadData();
+  }, [qrScans]);
 
   // Calculate real stats
-  const totalScans = qrCodes.reduce((sum, qr) => sum + (qr.scans || 0), 0);
+  const totalScans = qrScans.length;
   const totalLeadsGenerated = qrCodes.reduce((sum, qr) => sum + (qr.leadsGenerated || 0), 0);
 
   if (!isAuthenticated) {
@@ -193,6 +235,56 @@ export default function QRCodesPage() {
             </div>
           </div>
         </div>
+
+        {/* Recent Scans */}
+        {qrScans.length > 0 && (
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200/50 p-6 mb-8">
+            <div className="flex items-center mb-4">
+              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mr-3">
+                <span className="text-white text-sm font-bold">📱</span>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900">Recent QR Code Scans</h3>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Agent
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Scanned At
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      IP Address
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      User Agent
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {qrScans.slice(0, 10).map((scan) => (
+                    <tr key={scan.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {scan.agent_id}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {new Date(scan.scanned_at).toLocaleString()}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {scan.ip_address}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-500 truncate max-w-xs">
+                        {scan.user_agent}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
 
         {/* QR Codes Grid */}
         <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200/50 p-8">

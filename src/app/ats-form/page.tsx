@@ -6,6 +6,33 @@ import ATSReplicaForm from '../../../components/ATSReplicaForm';
 export default function ATSFormPage() {
   const [agentId, setAgentId] = useState('AHRPE5559');
 
+  const trackQRScan = async (agentId: string) => {
+    try {
+      // Get user agent and other tracking info
+      const userAgent = navigator.userAgent;
+      const referrer = document.referrer;
+      
+      // Note: In a real implementation, you'd get the IP from the server
+      // For now, we'll use a placeholder
+      const ipAddress = 'unknown';
+      
+      await fetch('/api/qr-scan', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          agentId,
+          userAgent,
+          ipAddress,
+          referrer
+        }),
+      });
+    } catch (error) {
+      console.error('Error tracking QR scan:', error);
+    }
+  };
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
@@ -13,6 +40,9 @@ export default function ATSFormPage() {
       if (agent) {
         setAgentId(agent);
         localStorage.setItem('agentName', agent);
+        
+        // Track the QR code scan
+        trackQRScan(agent);
       }
     }
   }, []);

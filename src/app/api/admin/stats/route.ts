@@ -25,6 +25,31 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to count agents' }, { status: 500 });
     }
     
+    // Get emergency leads count (leads with emergency indicators)
+    const { count: emergencyLeads, error: emergencyError } = await supabase
+      .from('leads')
+      .select('*', { count: 'exact', head: true })
+      .eq('has_emergency_indicators', true);
+    
+    if (emergencyError) {
+      console.error('Error counting emergency leads:', emergencyError);
+      return NextResponse.json({ error: 'Failed to count emergency leads' }, { status: 500 });
+    }
+    
+    // Get recent leads (last 7 days)
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    
+    const { count: recentLeads, error: recentError } = await supabase
+      .from('leads')
+      .select('*', { count: 'exact', head: true })
+      .gte('submitted_at', sevenDaysAgo.toISOString());
+    
+    if (recentError) {
+      console.error('Error counting recent leads:', recentError);
+      return NextResponse.json({ error: 'Failed to count recent leads' }, { status: 500 });
+    }
+    
     // Get leads by source
     const { data: leadsBySource, error: sourceError } = await supabase
       .from('leads')
@@ -70,31 +95,18 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to count bonus eligible leads' }, { status: 500 });
     }
     
-    // Get recent leads (last 7 days)
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    
-    const { count: recentLeads, error: recentError } = await supabase
-      .from('leads')
-      .select('*', { count: 'exact', head: true })
-      .gte('submitted_at', sevenDaysAgo.toISOString());
-    
-    if (recentError) {
-      console.error('Error counting recent leads:', recentError);
-      return NextResponse.json({ error: 'Failed to count recent leads' }, { status: 500 });
-    }
-    
     const stats = {
       totalLeads: totalLeads || 0,
+      recentLeads: recentLeads || 0,
+      emergencyLeads: emergencyLeads || 0,
       totalAgents: totalAgents || 0,
       bonusEligibleLeads: bonusEligibleLeads || 0,
-      recentLeads: recentLeads || 0,
       leadsBySource: sourceCounts,
       leadsByStatus: statusCounts,
       timestamp: new Date().toISOString()
     };
     
-    return NextResponse.json({ stats });
+    return NextResponse.json(stats);
     
   } catch (error) {
     console.error('Error in stats API:', error);

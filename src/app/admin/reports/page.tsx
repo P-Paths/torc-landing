@@ -3,6 +3,37 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '../../../../components/AdminLayout';
 
+interface Lead {
+  id: string;
+  agentId: string;
+  agentName: string;
+  gamerFirstName: string;
+  gamerLastName: string;
+  email: string;
+  phone: string;
+  status: string;
+  submittedAt: Date;
+  hasEmergencyIndicators: boolean;
+  totalSymptoms: number;
+  zipCode?: string;
+  platforms?: string[];
+  gamertags?: {
+    xbox?: string;
+    playstation?: string;
+    steam?: string;
+  };
+  dailyHours?: string;
+  primaryGames?: string[];
+  additionalData?: {
+    gamerDOB?: {
+      year?: string;
+    };
+    startedAge?: string;
+    totalHours?: string;
+    games?: string[];
+  };
+}
+
 interface ReportData {
   totalLeads: number;
   totalAgents: number;
@@ -47,6 +78,7 @@ export default function ReportsPage() {
   const [agentId, setAgentId] = useState('AHRPE5559');
   const [isAuthenticated, setIsAuthenticated] = useState(true);
   const [reportData, setReportData] = useState<ReportData | null>(null);
+  const [leads, setLeads] = useState<Lead[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [dateRange, setDateRange] = useState('30d');
 
@@ -54,28 +86,146 @@ export default function ReportsPage() {
     setIsAuthenticated(false);
   };
 
+  const getAgeFromLead = (lead: Lead): number => {
+    if (lead.additionalData?.gamerDOB?.year) {
+      const birthYear = parseInt(lead.additionalData.gamerDOB.year);
+      const currentYear = new Date().getFullYear();
+      return currentYear - birthYear;
+    }
+    
+    if (lead.additionalData?.startedAge) {
+      return parseInt(lead.additionalData.startedAge) || 0;
+    }
+    
+    return 0;
+  };
+
+  const getAgeRange = (age: number): string => {
+    if (age <= 18) return '18 and under';
+    if (age <= 25) return '19-25';
+    if (age <= 35) return '26-35';
+    if (age <= 45) return '36-45';
+    return '46+';
+  };
+
+  const calculateReportData = (leads: Lead[]): ReportData => {
+    const totalLeads = leads.length;
+    
+    // Calculate agent performance
+    const agentLeads = leads.reduce((acc, lead) => {
+      if (!acc[lead.agentId]) {
+        acc[lead.agentId] = { name: lead.agentName, agentId: lead.agentId, leads: 0, commission: 0 };
+      }
+      acc[lead.agentId].leads += 1;
+      if (lead.status === 'enrolled') {
+        acc[lead.agentId].commission += 100; // $100 per enrollment
+      }
+      return acc;
+    }, {} as Record<string, { name: string; agentId: string; leads: number; commission: number }>);
+
+    const topAgents = Object.values(agentLeads)
+      .sort((a, b) => b.leads - a.leads)
+      .slice(0, 5);
+
+    // Calculate zip code distribution
+    const zipCounts = leads.reduce((acc, lead) => {
+      if (lead.zipCode) {
+        acc[lead.zipCode] = (acc[lead.zipCode] || 0) + 1;
+      }
+      return acc;
+    }, {} as Record<string, number>);
+
+    const zipCodeData = Object.entries(zipCounts)
+      .map(([zipCode, count]) => ({
+        zipCode,
+        count,
+        percentage: Math.round((count / totalLeads) * 100)
+      }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10);
+
+    // Calculate age demographics
+    const ageCounts = leads.reduce((acc, lead) => {
+      const age = getAgeFromLead(lead);
+      if (age > 0) {
+        const ageRange = getAgeRange(age);
+        acc[ageRange] = (acc[ageRange] || 0) + 1;
+      }
+      return acc;
+    }, {} as Record<string, number>);
+
+    const ageDemographics = Object.entries(ageCounts)
+      .map(([ageRange, count]) => ({
+        ageRange,
+        count,
+        percentage: Math.round((count / totalLeads) * 100)
+      }))
+      .sort((a, b) => b.count - a.count);
+
+    // Calculate lead identities (platforms)
+    const platformCounts = leads.reduce((acc, lead) => {
+      if (lead.platforms && lead.platforms.length > 0) {
+        lead.platforms.forEach(platform => {
+          acc[platform] = (acc[platform] || 0) + 1;
+        });
+      }
+      return acc;
+    }, {} as Record<string, number>);
+
+    const leadIdentities = Object.entries(platformCounts)
+      .map(([identity, count]) => ({
+        identity,
+        count,
+        percentage: Math.round((count / totalLeads) * 100)
+      }))
+      .sort((a, b) => b.count - a.count);
+
+    // Calculate conversion rate
+    const enrolledLeads = leads.filter(lead => lead.status === 'enrolled').length;
+    const conversionRate = totalLeads > 0 ? Math.round((enrolledLeads / totalLeads) * 100) : 0;
+
+    // Calculate total commission and bonus
+    const totalCommission = enrolledLeads * 100; // $100 per enrollment
+    const bonusEligibleLeads = leads.filter(lead => {
+      const age = getAgeFromLead(lead);
+      const platform = lead.platforms?.[0] || '';
+      const hours = parseInt(lead.dailyHours || '0') * 365;
+      return age <= 22 && platform.toLowerCase() === 'xbox' && hours >= 1100;
+    }).length;
+    const totalBonus = bonusEligibleLeads * 10; // $10 bonus per eligible lead
+
+    return {
+      totalLeads,
+      totalAgents: Object.keys(agentLeads).length,
+      totalCommission,
+      totalBonus,
+      conversionRate,
+      monthlyGrowth: 0, // TODO: Calculate from historical data
+      topAgents,
+      leadSources: [], // TODO: Add source tracking
+      monthlyLeads: [], // TODO: Add monthly breakdown
+      zipCodeData,
+      ageDemographics,
+      leadIdentities
+    };
+  };
+
   useEffect(() => {
     const loadRealData = async () => {
       try {
         setIsLoading(true);
         
-        // TODO: Replace with actual API calls to get real data
-        const realData: ReportData = {
-          totalLeads: 0,
-          totalAgents: 0,
-          totalCommission: 0,
-          totalBonus: 0,
-          conversionRate: 0,
-          monthlyGrowth: 0,
-          topAgents: [],
-          leadSources: [],
-          monthlyLeads: [],
-          zipCodeData: [],
-          ageDemographics: [],
-          leadIdentities: []
-        };
-        
-        setReportData(realData);
+        // Load leads data
+        const leadsResponse = await fetch('/api/admin/leads');
+        if (leadsResponse.ok) {
+          const leadsData = await leadsResponse.json();
+          const leadsList = leadsData.leads || [];
+          setLeads(leadsList);
+          
+          // Calculate report data from real leads
+          const calculatedReportData = calculateReportData(leadsList);
+          setReportData(calculatedReportData);
+        }
       } catch (error) {
         console.error('Error loading report data:', error);
       } finally {
@@ -223,50 +373,81 @@ export default function ReportsPage() {
           <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200/50 p-6">
             <div className="flex items-center mb-4">
               <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-600 rounded-lg flex items-center justify-center mr-3">
-                <span className="text-white text-sm font-bold">🆔</span>
+                <span className="text-white text-sm font-bold">🎮</span>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900">Lead Identities</h3>
+              <h3 className="text-lg font-semibold text-gray-900">Gaming Platforms</h3>
             </div>
             {reportData?.leadIdentities && reportData.leadIdentities.length > 0 ? (
               <div className="space-y-2">
                 {reportData.leadIdentities.map((item, index) => (
                   <div key={index} className="flex justify-between items-center">
-                    <span className="text-sm text-gray-700 font-medium">{item.identity}</span>
+                    <span className="text-sm text-gray-700 font-medium capitalize">{item.identity}</span>
                     <span className="text-sm text-gray-600">{item.count} leads ({item.percentage}%)</span>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-gray-500 text-sm">No identity data available</p>
+              <p className="text-gray-500 text-sm">No platform data available</p>
             )}
           </div>
         </div>
 
-        {/* Empty State */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200/50 p-12 text-center">
-          <div className="text-gray-400 text-6xl mb-6">📊</div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Real Data Coming Soon</h2>
-          <p className="text-gray-600 mb-6">
-            This dashboard will show real analytics when you start generating leads and collecting data.
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-2xl mx-auto">
-            <div className="bg-blue-50 rounded-lg p-4">
-              <div className="text-blue-600 text-2xl mb-2">🎯</div>
-              <h3 className="font-semibold text-blue-900 mb-1">Lead Analytics</h3>
-              <p className="text-sm text-blue-700">Track lead sources, conversion rates, and performance metrics</p>
+        {/* Top Agents Performance */}
+        {reportData?.topAgents && reportData.topAgents.length > 0 && (
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200/50 p-6 mb-8">
+            <div className="flex items-center mb-4">
+              <div className="w-10 h-10 bg-gradient-to-r from-yellow-500 to-orange-600 rounded-lg flex items-center justify-center mr-3">
+                <span className="text-white text-sm font-bold">🏆</span>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900">Top Performing Agents</h3>
             </div>
-            <div className="bg-green-50 rounded-lg p-4">
-              <div className="text-green-600 text-2xl mb-2">💰</div>
-              <h3 className="font-semibold text-green-900 mb-1">Commission Tracking</h3>
-              <p className="text-sm text-green-700">Monitor earnings, bonuses, and agent performance</p>
-            </div>
-            <div className="bg-purple-50 rounded-lg p-4">
-              <div className="text-purple-600 text-2xl mb-2">📈</div>
-              <h3 className="font-semibold text-purple-900 mb-1">Growth Insights</h3>
-              <p className="text-sm text-purple-700">Identify trends and optimization opportunities</p>
+            <div className="space-y-3">
+              {reportData.topAgents.map((agent, index) => (
+                <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                  <div className="flex items-center">
+                    <span className="text-lg font-bold text-gray-400 mr-3">#{index + 1}</span>
+                    <div>
+                      <span className="text-sm font-semibold text-gray-900">{agent.name}</span>
+                      <span className="text-xs text-gray-500 ml-2 font-mono">{agent.agentId}</span>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-sm font-semibold text-gray-900">{agent.leads} leads</span>
+                    <span className="text-xs text-green-600 ml-2">${agent.commission}</span>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-        </div>
+        )}
+
+        {/* Empty State */}
+        {(!reportData || reportData.totalLeads === 0) && (
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200/50 p-12 text-center">
+            <div className="text-gray-400 text-6xl mb-6">📊</div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Real Data Coming Soon</h2>
+            <p className="text-gray-600 mb-6">
+              This dashboard will show real analytics when you start generating leads and collecting data.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-2xl mx-auto">
+              <div className="bg-blue-50 rounded-lg p-4">
+                <div className="text-blue-600 text-2xl mb-2">🎯</div>
+                <h3 className="font-semibold text-blue-900 mb-1">Lead Analytics</h3>
+                <p className="text-sm text-blue-700">Track lead sources, conversion rates, and performance metrics</p>
+              </div>
+              <div className="bg-green-50 rounded-lg p-4">
+                <div className="text-green-600 text-2xl mb-2">💰</div>
+                <h3 className="font-semibold text-green-900 mb-1">Commission Tracking</h3>
+                <p className="text-sm text-green-700">Monitor earnings, bonuses, and agent performance</p>
+              </div>
+              <div className="bg-purple-50 rounded-lg p-4">
+                <div className="text-purple-600 text-2xl mb-2">📈</div>
+                <h3 className="font-semibold text-purple-900 mb-1">Growth Insights</h3>
+                <p className="text-sm text-purple-700">Identify trends and optimization opportunities</p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Performance Insights */}
         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200 mt-8">
