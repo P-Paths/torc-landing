@@ -88,8 +88,8 @@ export default function AgentDashboardPage() {
       
       // Calculate stats
       const totalLeads = agentLeads.length;
-      const validLeads = agentLeads.filter(lead => lead.status === 'qualified').length;
-      const bonusLeads = agentLeads.filter(lead => lead.is_bonus_eligible).length;
+      const validLeads = agentLeads.filter((lead: Lead) => lead.status === 'qualified').length;
+      const bonusLeads = agentLeads.filter((lead: Lead) => lead.is_bonus_eligible).length;
       const commissionTotal = (validLeads * currentAgent.commission_rate) + (bonusLeads * currentAgent.bonus_rate);
       
       setStats({
