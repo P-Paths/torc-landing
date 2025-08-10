@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     const { data: agent, error: agentError } = await supabase
       .from('agents')
       .select('id')
-      .eq('code', agentCode)
+      .eq('agent_id', agentCode)
       .single();
     
     if (agentError || !agent) {
