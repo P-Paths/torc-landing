@@ -30,6 +30,7 @@ interface Agent {
 
 interface Lead {
   id: string;
+  agent_id: string;
   gamer_first_name?: string;
   gamer_last_name?: string;
   email?: string;
