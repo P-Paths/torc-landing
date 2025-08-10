@@ -32,49 +32,49 @@ export default function AdminSidebar({ agentId, onLogout, isOpen, onToggle, them
     {
       name: 'Dashboard',
       href: '/admin',
-      icon: '📊',
+      icon: 'DASH',
       description: 'Overview and stats'
     },
     {
       name: 'Leads',
       href: '/admin/leads',
-      icon: '👥',
+      icon: 'LEADS',
       description: 'Manage leads'
     },
     {
       name: 'Agents',
       href: '/admin/agents',
-      icon: '👨‍💼',
+      icon: 'AGENTS',
       description: 'Agent management'
     },
     {
       name: 'Meetings',
       href: '/admin/meetings',
-      icon: '📅',
+      icon: 'MEET',
       description: 'Meeting tracker'
     },
     {
       name: 'QR Codes',
       href: '/admin/qr-codes',
-      icon: '📱',
+      icon: 'QR',
       description: 'QR code generation'
     },
     {
       name: 'Gaming Lookup',
       href: '/admin/gaming-lookup',
-      icon: '🎮',
+      icon: 'GAME',
       description: 'Gamertag verification'
     },
     {
       name: 'Reports',
       href: '/admin/reports',
-      icon: '📈',
+      icon: 'REPORTS',
       description: 'Analytics & reports'
     },
     {
       name: 'Settings',
       href: '/admin/settings',
-      icon: '⚙️',
+      icon: 'SETTINGS',
       description: 'System settings'
     }
   ];
@@ -282,7 +282,9 @@ export default function AdminSidebar({ agentId, onLogout, isOpen, onToggle, them
                 }`}
                 title={isOpen ? undefined : item.name}
               >
-                <span className="text-xl">{item.icon}</span>
+                <span className="text-xs font-bold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent px-2 py-1 rounded border border-gray-300">
+                  {item.icon}
+                </span>
                 {isOpen && (
                   <div className="flex-1">
                     <p className="font-medium">{item.name}</p>
@@ -313,7 +315,9 @@ export default function AdminSidebar({ agentId, onLogout, isOpen, onToggle, them
                     : 'text-gray-700 hover:bg-gray-50'
                 }`}
               >
-                <span className="text-xl">{theme === 'dark' ? '☀️' : '🌙'}</span>
+                <span className="text-xs font-bold bg-gradient-to-r from-yellow-500 to-orange-600 bg-clip-text text-transparent px-2 py-1 rounded border border-gray-300">
+                  {theme === 'dark' ? 'LIGHT' : 'DARK'}
+                </span>
                 <span className="font-medium">
                   {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
                 </span>
@@ -332,7 +336,9 @@ export default function AdminSidebar({ agentId, onLogout, isOpen, onToggle, them
               }`}
               title={isOpen ? undefined : "Logout"}
             >
-              <span className="text-xl">🚪</span>
+              <span className="text-xs font-bold bg-gradient-to-r from-red-500 to-pink-600 bg-clip-text text-transparent px-2 py-1 rounded border border-gray-300">
+                EXIT
+              </span>
               {isOpen && <span className="font-medium">Logout</span>}
             </button>
           </div>
